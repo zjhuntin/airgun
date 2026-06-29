@@ -107,8 +107,8 @@ class NewHostEntity(HostEntity):
         host_group_view.ansible_roles.select_pages.click()
         role_list = self.browser.elements(host_group_view.ansible_roles.available_role, parent=self)
         for single_role in role_list[1:]:
-            if single_role.text.split('. ')[1] == role_name:
-                single_role.click()
+            if self.browser.text(single_role).split('. ')[1] == role_name:
+                self.browser.click(single_role)
 
     @navigate_to_edit_view
     def remove_hostgroup_role(self, entity_name, role_name):
@@ -121,8 +121,8 @@ class NewHostEntity(HostEntity):
         host_group_view = HostGroupEditView(self.browser)
         role_list = self.browser.elements(host_group_view.ansible_roles.assigned_role, parent=self)
         for single_role in role_list[1:]:
-            if single_role.text.split('. ')[1] == role_name:
-                single_role.click()
+            if self.browser.text(single_role).split('. ')[1] == role_name:
+                self.browser.click(single_role)
 
     @navigate_to_edit_view
     def assign_all_role_to_hostgroup(self, entity_name, role_name=None):
@@ -132,7 +132,7 @@ class NewHostEntity(HostEntity):
         host_group_view.ansible_roles.select_pages.click()
         role_list = self.browser.elements(host_group_view.ansible_roles.available_role, parent=self)
         for single_role in role_list:
-            single_role.click()
+            self.browser.click(single_role)
 
     @navigate_to_edit_view
     def remove_all_role_from_hostgroup(self, entity_name, role_name=None):
@@ -141,7 +141,7 @@ class NewHostEntity(HostEntity):
         host_group_view.ansible_roles.click()
         role_list = self.browser.elements(host_group_view.ansible_roles.assigned_role, parent=self)
         for single_role in role_list:
-            single_role.click()
+            self.browser.click(single_role)
 
     def get_host_statuses(self, entity_name):
         """Read host statuses from Host Details page
@@ -557,7 +557,7 @@ class NewHostEntity(HostEntity):
         view.content.module_streams.select()
         view.content.module_streams.searchbar.fill(search)
         # wait for filter to apply
-        self.browser.wait_for_element(locator='//h4[text()="Loading"]', exception=False)
+        self.browser.wait_for_element(locator='.//h4[text()="Loading"]', exception=False)
         view.content.module_streams.table.wait_displayed()
         return view.content.module_streams.table.read()
 
@@ -750,13 +750,13 @@ class NewHostEntity(HostEntity):
 
         networking_interface_dict = {}
         tmp = {
-            'fqdn': [i.text for i in next(iter(dict_val_gen('FQDN')))],
-            'ipv4': [i.text for i in next(iter(dict_val_gen('IPv4')))],
-            'ipv6': [i.text for i in next(iter(dict_val_gen('IPv6')))],
-            'mac': [i.text for i in next(iter(dict_val_gen('MAC')))],
+            'fqdn': [self.browser.text(i) for i in next(iter(dict_val_gen('FQDN')))],
+            'ipv4': [self.browser.text(i) for i in next(iter(dict_val_gen('IPv4')))],
+            'ipv6': [self.browser.text(i) for i in next(iter(dict_val_gen('IPv6')))],
+            'mac': [self.browser.text(i) for i in next(iter(dict_val_gen('MAC')))],
             # TODO: After RFE BZ2183086 is resolved, uncomment line below
-            # 'subnet': [i.text for i in list(dict_val_gen('Subnet'))[0]],
-            'mtu': [i.text for i in next(iter(dict_val_gen('MTU')))],
+            # 'subnet': [self.browser.text(i) for i in list(dict_val_gen('Subnet'))[0]],
+            'mtu': [self.browser.text(i) for i in next(iter(dict_val_gen('MTU')))],
         }
 
         for i, dev in enumerate(net_devices):

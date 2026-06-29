@@ -36,7 +36,7 @@ class RHSSOLoginEntity(BaseEntity):
         return view.read()
 
     def get_two_factor_login_code(self, values, url):
-        self.browser.selenium.get(url)
+        self.browser.url = url
         self.login(values)
         view = RhssoTwoFactorSuccessView(self.browser)
         return view.read()

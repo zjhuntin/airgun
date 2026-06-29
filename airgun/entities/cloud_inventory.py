@@ -142,9 +142,9 @@ class CloudInventoryEntity(BaseEntity):
         """
         view = self.navigate_to(self, 'All')
         view.inventory_list.toggle(org_name)
-        view.inventory_list.download_report.click()
-        time.sleep(3)
-        return self.browser.save_downloaded_file()
+        return self.browser.save_downloaded_file(
+            trigger=view.inventory_list.download_report.click
+        )
 
     def update(self, values):
         """Update Inventory Upload view."""

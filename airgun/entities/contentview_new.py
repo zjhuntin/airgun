@@ -3,7 +3,7 @@ import time
 from navmazing import NavigateToSibling
 from wait_for import wait_for
 from widgetastic.exceptions import NoSuchElementException
-from widgetastic_patternfly4.dropdown import DropdownItemDisabled
+from widgetastic_patternfly5 import DropdownItemDisabled
 
 from airgun.entities.base import BaseEntity
 from airgun.navigation import NavigateStep, navigator

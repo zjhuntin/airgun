@@ -1,8 +1,8 @@
 from contextlib import suppress
 import re
 
-from selenium.common.exceptions import NoSuchElementException
 from wait_for import wait_for
+from widgetastic.exceptions import NoSuchElementException
 
 from airgun.entities.base import BaseEntity
 from airgun.entities.product import ProductEntity
@@ -122,7 +122,7 @@ class RepositoryEntity(BaseEntity):
             product_name=product_name,
             entity_name=entity_name,
         )
-        max_per_page = max(int(el.text) for el in view.items_per_page.all_options)
+        max_per_page = max(int(self.browser.text(el)) for el in view.items_per_page.all_options)
         view.items_per_page.fill(str(max_per_page))
         for _ in range(int(view.total_packages.text) // max_per_page + 1):
             view.select_all.fill(True)

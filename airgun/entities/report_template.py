@@ -65,7 +65,7 @@ class ReportTemplateEntity(BaseEntity):
         view.search(entity_name)
         return 'This template is locked for editing.' in view.table.row(name=entity_name)[
             'Locked'
-        ].widget.browser.element('.').get_property('innerHTML')
+        ].widget.browser.element('.').inner_html()
 
     def export(self, entity_name):
         """Export report template.
@@ -74,8 +74,9 @@ class ReportTemplateEntity(BaseEntity):
         """
         view = self.navigate_to(self, 'All')
         view.search(entity_name)
-        view.table.row(name=entity_name)['Actions'].widget.fill('Export')
-        return self.browser.save_downloaded_file()
+        return self.browser.save_downloaded_file(
+            trigger=lambda: view.table.row(name=entity_name)['Actions'].widget.fill('Export')
+        )
 
     def generate(self, entity_name, values={}):
         """Generate report template
@@ -93,7 +94,7 @@ class ReportTemplateEntity(BaseEntity):
             timeout=300,
             delay=1,
         )
-        return self.browser.save_downloaded_file()
+        return self.browser.save_downloaded_file(trigger=view.download_button.click)
 
     def schedule(self, entity_name, values={}):
         """Schedule report template"""

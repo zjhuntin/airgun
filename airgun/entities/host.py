@@ -193,8 +193,8 @@ class HostEntity(BaseEntity):
         """Get puppet external nodes YAML dump for specific host"""
         view = self.navigate_to(self, 'Details', entity_name=entity_name)
         view.yaml_dump.click()
-        output = view.browser.element(view.yaml_output).text
-        view.browser.selenium.back()
+        output = view.browser.text(view.browser.element(view.yaml_output))
+        view.browser.page.go_back()
         return output
 
     def read_insights_recommendations(self, entity_name):
@@ -313,8 +313,7 @@ class HostEntity(BaseEntity):
         :return str: path to saved file
         """
         view = self.navigate_to(self, 'All')
-        view.export.click()
-        return self.browser.save_downloaded_file()
+        return self.browser.save_downloaded_file(trigger=view.export.click)
 
     def host_statuses(self):
         view = self.navigate_to(self, 'Host Statuses')
@@ -428,15 +427,15 @@ class HostEntity(BaseEntity):
         # switch to the last opened tab,
         self.browser.switch_to_window(self.browser.window_handles[-1])
         self.browser.plugin.ensure_page_safe()
-        self.browser.wait_for_element(locator='//div[@id="content"]/iframe', exception=True)
+        self.browser.wait_for_element(locator='.//div[@id="content"]/iframe', exception=True)
         # the remote host content is loaded in an iframe, let's switch to it
-        self.browser.switch_to_frame(locator='//div[@id="content"]/iframe')
+        self.browser.switch_to_frame(locator='.//div[@id="content"]/iframe')
 
         self.browser.wait_for_element(
-            locator=f'//{hostname_element}[@id="{hostname_id}"]', exception=True, visible=True
+            locator=f'.//{hostname_element}[@id="{hostname_id}"]', exception=True, visible=True
         )
-        hostname_button = self.browser.selenium.find_elements('id', hostname_id)
-        hostname = hostname_button[0].text
+        hostname_elements = self.browser.elements(f'.//*[@id="{hostname_id}"]')
+        hostname = self.browser.text(hostname_elements[0])
         self.browser.switch_to_main_frame()
         self.browser.switch_to_window(self.browser.window_handles[0])
         self.browser.close_window(self.browser.window_handles[-1])

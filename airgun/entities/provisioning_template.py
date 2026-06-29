@@ -64,7 +64,7 @@ class ProvisioningTemplateEntity(BaseEntity):
         try:
             return 'This template is locked for editing.' in view.table.row(name=entity_name)[
                 'Locked'
-            ].widget.browser.element('.').get_property('innerHTML')
+            ].widget.browser.element('.').inner_html()
         except NoSuchElementException:
             return False
 

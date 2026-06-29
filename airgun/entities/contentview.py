@@ -210,7 +210,7 @@ class ContentViewEntity(BaseEntity):
                     # workaround for non-standard table with rows being present
                     # in DOM with 'ng-hide' class
                     continue
-                row[0].widget.fill(row['Name'].text in lces)
+                row[0].widget.fill(self.browser.text(row['Name']) in lces)
         view.completely.fill(completely)
         view.next.click()
         view = ContentViewVersionRemoveConfirmationView(self.browser)

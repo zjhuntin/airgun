@@ -63,9 +63,9 @@ class PlanEntity(BaseEntity):
         :param str entity_name: Name of plan
         """
         view = self.navigate_to(self, 'Details', entity_name=entity_name).plan(entity_name)
-        view.ansible_actions.fill('Download Playbook')
-        self.browser.plugin.ensure_page_safe()
-        return self.browser.save_downloaded_file()
+        return self.browser.save_downloaded_file(
+            trigger=lambda: view.ansible_actions.fill('Download Playbook')
+        )
 
     def export_csv(self, entity_name):
         """Download CSV file with details of given plan
@@ -73,9 +73,7 @@ class PlanEntity(BaseEntity):
         :param str entity_name: Name of plan
         """
         view = self.navigate_to(self, 'Details', entity_name=entity_name).plan(entity_name)
-        view.export_csv.click()
-        self.browser.plugin.ensure_page_safe()
-        return self.browser.save_downloaded_file()
+        return self.browser.save_downloaded_file(trigger=view.export_csv.click)
 
 
 @navigator.register(PlanEntity, 'All')

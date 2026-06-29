@@ -27,8 +27,7 @@ class ConfigReportEntity(BaseEntity):
         view = self.navigate_to(self, 'All')
         if host_name:
             view.search(host_name)
-        view.export.click()
-        return self.browser.save_downloaded_file()
+        return self.browser.save_downloaded_file(trigger=view.export.click)
 
     def delete(self, host_name):
         """Delete a Config report"""

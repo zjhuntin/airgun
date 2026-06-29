@@ -190,7 +190,7 @@ class CloudVulnerabilityEntity(BaseEntity):
             # Use direct browser click since cached_property might not include newly visible items
             checkbox_locator = f'.//li[@id="{os_version}"]//input[@type="checkbox"]'
             checkbox = view.browser.element(checkbox_locator, exception=False)
-            if checkbox and not checkbox.is_selected():
+            if checkbox and not checkbox.is_checked():
                 view.browser.click(checkbox_locator)
 
         # Close the dropdown by clicking the button again (or clicking outside)
@@ -338,7 +338,7 @@ class CloudVulnerabilityEntity(BaseEntity):
         view.title.click()
         # Wait for the dropdown menu to actually close (elements() returns empty list when not found)
         wait_for(
-            lambda: len(view.browser.elements('//div[contains(@class, "pf-v5-c-menu")]')) == 0,
+            lambda: len(view.browser.elements('.//div[contains(@class, "pf-v5-c-menu")]')) == 0,
             timeout=10,
         )
 
@@ -385,7 +385,7 @@ class CloudVulnerabilityEntity(BaseEntity):
         view.title.click()
         # Wait for the dropdown menu to actually close (elements() returns empty list when not found)
         wait_for(
-            lambda: len(view.browser.elements('//div[contains(@class, "pf-v5-c-menu")]')) == 0,
+            lambda: len(view.browser.elements('.//div[contains(@class, "pf-v5-c-menu")]')) == 0,
             timeout=10,
         )
 
@@ -443,10 +443,9 @@ class CloudVulnerabilityEntity(BaseEntity):
             'csv': 'Export to CSV',
             'json': 'Export to JSON',
         }
-        view.export_menu.item_select(format_map[export_format])
-
-        time.sleep(5)
-        return self.browser.save_downloaded_file()
+        return self.browser.save_downloaded_file(
+            trigger=lambda: view.export_menu.item_select(format_map[export_format])
+        )
 
 
 @navigator.register(CloudVulnerabilityEntity, 'All')

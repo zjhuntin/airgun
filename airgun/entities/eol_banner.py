@@ -22,11 +22,11 @@ class EOLBannerEntity(BaseEntity):
 
     def lifecycle_link(self):
         view = self.navigate_to(self, 'NavigateToEOLBanner')
-        return view.lifecycle_link.get_attribute('href')
+        return self.browser.get_attribute('href', view.lifecycle_link)
 
     def helper_link(self):
         view = self.navigate_to(self, 'NavigateToEOLBanner')
-        return view.helper_link.get_attribute('href')
+        return self.browser.get_attribute('href', view.helper_link)
 
 
 @navigator.register(EOLBannerEntity)
