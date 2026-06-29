@@ -32,18 +32,15 @@ class SatelliteSettings:
         self.password = None
 
 
-class SeleniumSettings:
+class PlaywrightSettings:
     def __init__(self):
-        self.browser = None
+        self.browser = 'chromium'
         self.screenshots_path = None
-        self.webdriver = None
-        self.webdriver_binary = None
+        self.headless = True
+        self.slow_mo = 0
+        self.provider = 'local'
+        self.ws_endpoint = None
         self.browseroptions = None
-
-
-class WebKaifukuSettings:
-    def __init__(self):
-        self.config = None
 
 
 class Settings:
@@ -51,8 +48,7 @@ class Settings:
         self.configured = False
         self.airgun = AirgunSettings()
         self.satellite = SatelliteSettings()
-        self.selenium = SeleniumSettings()
-        self.webkaifuku = WebKaifukuSettings()
+        self.playwright = PlaywrightSettings()
 
     def _configure_logging(self):
         logging.captureWarnings(False)
@@ -83,6 +79,8 @@ class Settings:
             config.read(settings_path)
 
         for section in config.sections():
+            if not hasattr(self, section):
+                continue
             for key, value in config[section].items():
                 setattr(getattr(self, section), key, value)
 

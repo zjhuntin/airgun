@@ -4,12 +4,13 @@ from datetime import datetime
 import logging
 import os
 import sys
+import uuid
 
 from cached_property import cached_property
 from fauxfactory import gen_string
 
 from airgun import settings
-from airgun.browser import AirgunBrowser, SeleniumBrowserFactory
+from airgun.browser import AirgunBrowser, PlaywrightBrowserFactory
 from airgun.entities.about import AboutEntity
 from airgun.entities.acs import AcsEntity
 from airgun.entities.activationkey import ActivationKeyEntity
@@ -279,15 +280,15 @@ class Session:
             )
         else:
             LOGGER.info('Starting UI session %r for user %r', self.name, self._user)
-        self._factory = SeleniumBrowserFactory(
+        self._factory = PlaywrightBrowserFactory(
             test_name=self.name, session_cookie=self._session_cookie, hostname=self._hostname
         )
         try:
-            selenium_browser = self._factory.get_browser()
-            self.browser = AirgunBrowser(selenium_browser, self)
-            LOGGER.info(f'Session Id For {self.name}: {selenium_browser.session_id}')
+            playwright_page = self._factory.get_browser()
+            self.browser = AirgunBrowser(playwright_page, self)
+            self.ui_session_id = str(uuid.uuid4())
+            LOGGER.info(f'Session Id For {self.name}: {self.ui_session_id}')
             LOGGER.info(f'Setting initial URL to {url}')
-            self.ui_session_id = selenium_browser.session_id
 
             self.browser.url = url
 
@@ -315,20 +316,28 @@ class Session:
         This method is called automatically in case any exception during UI
         session happens.
         """
+        screenshots_path = getattr(settings, 'playwright', None)
+        if screenshots_path:
+            screenshots_path = getattr(screenshots_path, 'screenshots_path', '/tmp')  # noqa: S108
+        else:
+            screenshots_path = '/tmp'  # noqa: S108
+
         now = datetime.now()
         path = os.path.join(
-            settings.selenium.screenshots_path,
+            screenshots_path,
             now.strftime('%Y-%m-%d'),
         )
         if not os.path.exists(path):
             os.makedirs(path)
-        path = os.path.join(
+        filepath = os.path.join(
             path,
             f'{self.name}-screenshot-{now.strftime("%Y-%m-%d_%H_%M_%S")}.png',
         )
-        LOGGER.debug('Saving screenshot %s', path)
-        if not self.browser.selenium.save_screenshot(path):
-            LOGGER.error('Failed to save screenshot %s', path)
+        LOGGER.debug('Saving screenshot %s', filepath)
+        try:
+            self.browser.page.screenshot(path=filepath)
+        except Exception:  # noqa: BLE001
+            LOGGER.error('Failed to save screenshot %s', filepath)
 
     @cached_property
     def acs(self):

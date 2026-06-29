@@ -2,9 +2,9 @@
 
 from cached_property import cached_property
 import navmazing
-from selenium.common.exceptions import NoSuchElementException
 from wait_for import wait_for
-from widgetastic_patternfly4.navigation import NavSelectionNotFound
+from widgetastic.exceptions import NoSuchElementException
+from widgetastic_patternfly5 import NavSelectionNotFound
 
 NAV_EXCEPTIONS = NavSelectionNotFound
 
