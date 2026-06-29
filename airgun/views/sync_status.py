@@ -272,12 +272,12 @@ class SelectAllDropdown(Widget):
 
 
 class SyncStatusView(BaseLoggedInView):
-    title = Text('//h1[@data-ouia-component-id="sync-status-title"]')
+    title = Text('.//h1[@data-ouia-component-id="sync-status-title"]')
 
     # Toolbar
     selection_dropdown = SelectAllDropdown()
     show_syncing_only = PF5OUIASwitch('show-syncing-only-switch')
-    synchronize = PF5Button(locator='//button[@data-ouia-component-id="sync-button"]')
+    synchronize = PF5Button(locator='.//button[@data-ouia-component-id="sync-button"]')
 
     # Tree table
     table = SyncStatusTreeTable(locator='.//table[@data-ouia-component-id="sync-status-table"]')

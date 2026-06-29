@@ -1,5 +1,5 @@
 from widgetastic.widget import Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SatTab, SearchableViewMixinPF4
 from airgun.widgets import (
@@ -31,18 +31,19 @@ class TemplatesList(View):
     """
 
     SELECT = (
-        "//label[@for='provisioning_template_id'][contains(.,'{}')]"
+        ".//label[@for='provisioning_template_id'][contains(.,'{}')]"
         "/following-sibling::div/select[contains(@id, 'default_templates')]"
     )
-    TITLES = "//label[@for='provisioning_template_id']"
+    TITLES = ".//label[@for='provisioning_template_id']"
 
     @property
     def selects(self):
         """Get dictionary of currently assigned templates for OS"""
         selects = {}
         for title in self.browser.elements(self.TITLES, check_visibility=True):
-            selects[title.text] = FilteredDropdown(
-                self, locator=self.SELECT.format(title.text), logger=self.logger
+            title_text = self.browser.text(title)
+            selects[title_text] = FilteredDropdown(
+                self, locator=self.SELECT.format(title_text), logger=self.logger
             )
         return selects
 
@@ -67,8 +68,8 @@ class TemplatesList(View):
 
 
 class OperatingSystemsView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Operating Systems']")
-    new = Text("//a[contains(@href, '/operatingsystems/new')]")
+    title = Text(".//h1[normalize-space(.)='Operating Systems']")
+    new = Text(".//a[contains(@href, '/operatingsystems/new')]")
     table = Table(
         './/table',
         column_widgets={
@@ -84,7 +85,7 @@ class OperatingSystemsView(BaseLoggedInView, SearchableViewMixinPF4):
 
 class OperatingSystemEditView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):

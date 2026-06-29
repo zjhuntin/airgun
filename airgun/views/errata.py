@@ -1,5 +1,5 @@
 from widgetastic.widget import Checkbox, Text, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun import ERRATA_REGEXP
 from airgun.views.common import BaseLoggedInView, SatTab, TaskDetailsView
@@ -7,7 +7,7 @@ from airgun.widgets import ItemsList, ReadOnlyEntry, SatSelect, SatTable, Search
 
 
 class ErratumView(BaseLoggedInView):
-    title = Text("//h1[contains(., 'Errata')]")
+    title = Text(".//h1[contains(., 'Errata')]")
     table = SatTable(
         locator='.//table',
         column_widgets={

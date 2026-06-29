@@ -1,13 +1,13 @@
 from widgetastic.widget import FileInput, Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SatTab, SearchableViewMixin
 from airgun.widgets import ActionsDropdown, MultiSelect
 
 
 class SCAPTailoringFilesView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h1[normalize-space(.)='Tailoring Files']")
-    new = Text("//a[contains(@href, 'tailoring_files/new')]")
+    title = Text(".//h1[normalize-space(.)='Tailoring Files']")
+    new = Text(".//a[contains(@href, 'tailoring_files/new')]")
     table = Table(
         './/table',
         column_widgets={
@@ -23,8 +23,8 @@ class SCAPTailoringFilesView(BaseLoggedInView, SearchableViewMixin):
 
 class SCAPTailoringFileCreateView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
-    cancel = Text('//a[normalize-space(.)="Cancel"]')
+    submit = Text('.//input[@name="commit"]')
+    cancel = Text('.//a[normalize-space(.)="Cancel"]')
 
     @property
     def is_displayed(self):
@@ -51,13 +51,13 @@ class SCAPTailoringFileCreateView(BaseLoggedInView):
 
 
 class SCAPTailoringFileEditView(SCAPTailoringFileCreateView):
-    scap_file_name = Text('//label[contains(., "Scap File")]/following-sibling::div/b')
+    scap_file_name = Text('.//label[contains(., "Scap File")]/following-sibling::div/b')
 
     @View.nested
     class file_upload(SatTab):
         TAB_NAME = 'File Upload'
         name = TextInput(id='tailoring_file_name')
-        uploaded_scap_file = Text(locator="//label[@for='scap_file']/following-sibling::div/b")
+        uploaded_scap_file = Text(locator=".//label[@for='scap_file']/following-sibling::div/b")
         scap_file = FileInput(id='tailoring_file_scap_file')
 
     @property

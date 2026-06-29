@@ -1,7 +1,7 @@
 from wait_for import wait_for
 from widgetastic.widget import Checkbox, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
 from widgetastic_patternfly5 import (
+    BreadCrumb,
     ChipGroup as PF5ChipGroup,
     DescriptionList,
     Radio as PF5Radio,
@@ -58,8 +58,8 @@ class HostsExpandableTable(PF5OUIAExpandableTable):
 
 
 class JobInvocationsView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h1[contains(., 'Job') and contains(., 'nvocations')]")
-    new = Text("//a[contains(@href, '/job_invocations/new')]")
+    title = Text(".//h1[contains(., 'Job') and contains(., 'nvocations')]")
+    new = Text(".//a[contains(@href, '/job_invocations/new')]")
     table = SatTable('.//table', column_widgets={'Description': Text('./a')})
 
     @property
@@ -76,7 +76,7 @@ class JobInvocationCreateView(BaseLoggedInView):
         job_category = PF5OUIASelect('job_category')
         job_template = PF5OUIASelect('job_template')
         job_template_text_input = TextInput(
-            locator='//div[contains(@class, "pf-v5-c-form__group") and .//label[.//span[text()="Job template"]]]//input[@type="text"]'
+            locator='.//div[contains(@class, "pf-v5-c-form__group") and .//label[.//span[text()="Job template"]]]//input[@type="text"]'
         )
 
     @View.nested
@@ -84,7 +84,7 @@ class JobInvocationCreateView(BaseLoggedInView):
         expander = Text(".//button[contains(.,'Target hosts and inputs')]")
         command = TextInput(id='command')
 
-        selected_hosts = PF5ChipGroup(locator='//div[@class="selected-chips"]/div')
+        selected_hosts = PF5ChipGroup(locator='.//div[@class="selected-chips"]/div')
 
         package_action = PF5OUIASelect('action')
         package = TextInput(id='package')
@@ -135,13 +135,13 @@ class JobInvocationCreateView(BaseLoggedInView):
     @View.nested
     class schedule_future_execution(WizardStepView):
         expander = Text(".//button[contains(.,'Future execution')]")
-        start_at_date = TextInput(locator='//input[contains(@aria-label, "starts at datepicker")]')
-        start_at_time = TextInput(locator='//input[contains(@aria-label, "starts at timepicker")]')
+        start_at_date = TextInput(locator='.//input[contains(@aria-label, "starts at datepicker")]')
+        start_at_time = TextInput(locator='.//input[contains(@aria-label, "starts at timepicker")]')
         start_before_date = TextInput(
-            locator='//input[contains(@aria-label, "starts before datepicker")]'
+            locator='.//input[contains(@aria-label, "starts before datepicker")]'
         )
         start_before_time = TextInput(
-            locator='//input[contains(@aria-label, "starts before timepicker")]'
+            locator='.//input[contains(@aria-label, "starts before timepicker")]'
         )
 
     @View.nested
@@ -150,19 +150,19 @@ class JobInvocationCreateView(BaseLoggedInView):
         # Starts
         start_now = PF5Radio(id='start-now')
         start_at = PF5Radio(id='start-at')
-        start_at_date = TextInput(locator='//input[contains(@aria-label, "starts at datepicker")]')
-        start_at_time = TextInput(locator='//input[contains(@aria-label, "starts at timepicker")]')
+        start_at_date = TextInput(locator='.//input[contains(@aria-label, "starts at datepicker")]')
+        start_at_time = TextInput(locator='.//input[contains(@aria-label, "starts at timepicker")]')
         # Repeats
         repeats = PF5OUIASelect('repeat-select')
-        repeats_at = TextInput(locator='//input[contains(@aria-label, "repeat-at")]')
+        repeats_at = TextInput(locator='.//input[contains(@aria-label, "repeat-at")]')
         # Ends
         ends_never = PF5Radio(id='schedule-never-ends')
         ends_on = PF5Radio(id='schedule-ends-on-date')
-        ends_on_date = TextInput(locator='//input[contains(@aria-label, "ends on datepicker")]')
-        ends_on_time = TextInput(locator='//input[contains(@aria-label, "ends on timepicker")]')
+        ends_on_date = TextInput(locator='.//input[contains(@aria-label, "ends on datepicker")]')
+        ends_on_time = TextInput(locator='.//input[contains(@aria-label, "ends on timepicker")]')
         ends_after = PF5Radio(id='schedule-ends-after')
-        ends_after_count = TextInput(locator='//input[contains(@id, "repeat-amount")]')
-        purpose = TextInput(locator='//input[contains(@aria-label, "purpose")]')
+        ends_after_count = TextInput(locator='.//input[contains(@id, "repeat-amount")]')
+        purpose = TextInput(locator='.//input[contains(@aria-label, "purpose")]')
 
     @View.nested
     class submit(WizardStepView):
@@ -248,7 +248,7 @@ class JobInvocationStatusView(BaseLoggedInView):
         """'System status' panel."""
 
         ROOT = ".//div[contains(@class, 'chart-legend')]"
-        first_label = Text(locator="//*[@id='legend-labels-0']")
+        first_label = Text(locator=".//*[@id='legend-labels-0']")
 
         @property
         def is_displayed(self):

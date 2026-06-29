@@ -1,6 +1,6 @@
 from widgetastic.widget import ConditionalSwitchableView, Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
 from widgetastic_patternfly5 import (
+    BreadCrumb,
     Button as PF5Button,
     ChipGroup as PF5ChipGroup,
     Pagination as PF5Pagination,
@@ -33,9 +33,9 @@ class ActivationKeyDropDown(ActionsDropdown):
 
 class HostGroupsView(BaseLoggedInView, SearchableViewMixinPF4):
     title = Text(
-        "//h1[contains(., 'Host Group Configuration') or normalize-space(.)='Host Groups']"
+        ".//h1[contains(., 'Host Group Configuration') or normalize-space(.)='Host Groups']"
     )
-    new = Text("//a[contains(@href, '/hostgroups/new')]")
+    new = Text(".//a[contains(@href, '/hostgroups/new')]")
     new_on_blank_page = PF5Button('Create Host Group')
     table = Table(
         './/table',
@@ -55,7 +55,7 @@ class HostGroupsView(BaseLoggedInView, SearchableViewMixinPF4):
 
 class HostGroupCreateView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):
@@ -106,7 +106,7 @@ class HostGroupCreateView(BaseLoggedInView):
 
         architecture = FilteredDropdown(id='hostgroup_architecture')
         operating_system = FilteredDropdown(id='hostgroup_operatingsystem')
-        media_type = RadioGroup(locator="//div[label[contains(., 'Media Selection')]]")
+        media_type = RadioGroup(locator=".//div[label[contains(., 'Media Selection')]]")
         media_content = ConditionalSwitchableView(reference='media_type')
 
         @media_content.register('All Media')
@@ -137,13 +137,13 @@ class HostGroupCreateView(BaseLoggedInView):
         TAB_NAME = 'Activation Keys'
         activation_keys = PF5OUIASelect(component_id='ak-select')
         ak_chip_group = PF5ChipGroup(
-            locator='//div[@aria-label="Chip group category" and @data-ouia-component-type="PF5/ChipGroup"]'
+            locator='.//div[@aria-label="Chip group category" and @data-ouia-component-type="PF5/ChipGroup"]'
         )
 
 
 class HostGroupEditView(HostGroupCreateView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):
@@ -157,12 +157,12 @@ class HostGroupEditView(HostGroupCreateView):
     @View.nested
     class ansible_roles(SatTab):
         TAB_NAME = 'Ansible Roles'
-        more_item = Text('//span[@class="pf-c-options-menu__toggle-button-icon"]')
-        select_pages = Text('//ul[@class="pf-c-options-menu__menu"]/li[6]/button')
-        available_role = '//div[@class="available-roles-container col-sm-6"]/div[2]/div'
-        assigned_role = '//div[@class="assigned-roles-container col-sm-6"]/div[2]/div'
-        assigned_ansible_role = '//div[@class="assigned-roles-container col-sm-6"]/div[2]/div'
-        no_of_available_role = Text('//span[@class="pf-c-options-menu__toggle-text"]//b[2]')
+        more_item = Text('.//span[@class="pf-c-options-menu__toggle-button-icon"]')
+        select_pages = Text('.//ul[@class="pf-c-options-menu__menu"]/li[6]/button')
+        available_role = './/div[@class="available-roles-container col-sm-6"]/div[2]/div'
+        assigned_role = './/div[@class="assigned-roles-container col-sm-6"]/div[2]/div'
+        assigned_ansible_role = './/div[@class="assigned-roles-container col-sm-6"]/div[2]/div'
+        no_of_available_role = Text('.//span[@class="pf-c-options-menu__toggle-text"]//b[2]')
         resources = MultiSelectNoFilter(id='ansible_roles')
-        submit = Text('//input[@name="commit"]')
+        submit = Text('.//input[@name="commit"]')
         pagination = PF5Pagination()

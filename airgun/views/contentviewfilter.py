@@ -8,7 +8,7 @@ from widgetastic.widget import (
     TextInput,
     View,
 )
-from widgetastic_patternfly import BreadCrumb, Button
+from widgetastic_patternfly5 import BreadCrumb, Button
 
 from airgun.views.common import (
     AddRemoveResourcesView,
@@ -129,7 +129,7 @@ class ContentViewFiltersView(BaseLoggedInView, SearchableViewMixin):
     remove_selected = Text(".//button[@ng-click='removeFilters()']")
 
     table = SatTable(
-        locator='//table',
+        locator='.//table',
         column_widgets={
             0: Checkbox(locator=".//input[@type='checkbox']"),
             'Name': Text('./a'),
@@ -170,7 +170,7 @@ class CreateYumFilterView(BaseLoggedInView):
 class EditYumFilterView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
     BREADCRUMB_LENGTH = 3
-    filter_type = Text('//header/small')
+    filter_type = Text('.//header/small')
     content_tabs = ConditionalSwitchableView(reference='filter_type')
 
     @property
@@ -200,7 +200,7 @@ class EditYumFilterView(BaseLoggedInView):
             add_rule = Text(".//button[@ng-click='addRule()']")
             remove_rule = Text(".//button[@ng-click='removeRules(filter)']")
             table = Table(
-                locator='//table',
+                locator='.//table',
                 column_widgets={
                     0: Checkbox(locator=".//input[@type='checkbox']"),
                     'RPM Name': TextInput(locator='.//input'),
@@ -278,8 +278,8 @@ class EditYumFilterView(BaseLoggedInView):
             start_date = DatePickerInput(locator=".//input[@ng-model='rule.start_date']")
             end_date = DatePickerInput(locator=".//input[@ng-model='rule.end_date']")
 
-            save = Text('//button[contains(@ng-click, "handleSave()")]')
-            cancel = Text('//button[contains(@ng-click, "handleCancel()")]')
+            save = Text('.//button[contains(@ng-click, "handleSave()")]')
+            cancel = Text('.//button[contains(@ng-click, "handleCancel()")]')
 
             def after_fill(self, was_change):
                 self.save.click()
@@ -320,7 +320,7 @@ class EditYumFilterView(BaseLoggedInView):
         filter_toggle = RadioGroup(".//div[@class='col-sm-8']")
         product_filter = Select(locator=".//select[@ng-model='product']")
         searchbox = TextInput(locator=".//input[@ng-model='repositorySearch']")
-        update_repositories = Button('Update Repositories')
+        update_repositories = Button(locator=".//button[normalize-space(.)='Update Repositories']")
         select_all = Checkbox(locator=".//table//th[@class='row-select']/input")
         table = SatTable(
             locator='.//table',

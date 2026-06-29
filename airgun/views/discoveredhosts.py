@@ -1,6 +1,6 @@
 from wait_for import wait_for
 from widgetastic.widget import Checkbox, Select, TableColumn, TableRow, Text
-from widgetastic_patternfly import BreadCrumb, Button
+from widgetastic_patternfly5 import BreadCrumb, Button
 
 from airgun.views.common import BaseLoggedInView, SearchableViewMixin
 from airgun.views.host import HostCreateView
@@ -25,14 +25,14 @@ class DiscoveredHostsViewTable(SatTable):
         </div>
     """
 
-    no_rows_message = "//div[@id='content' and contains(., 'No entries found')]"
+    no_rows_message = ".//div[@id='content' and contains(., 'No entries found')]"
 
 
 class DiscoveredHostsView(BaseLoggedInView, SearchableViewMixin):
     """Main discovered hosts view"""
 
-    title = Text("//h1[contains(., 'Discovered Hosts')]")
-    actions = ActionsDropdown("//div[@id='submit_multiple']")
+    title = Text(".//h1[contains(., 'Discovered Hosts')]")
+    actions = ActionsDropdown(".//div[@id='submit_multiple']")
     table = DiscoveredHostsViewTable(
         './/table',
         column_widgets={
@@ -108,16 +108,16 @@ class DiscoveredHostDetailsView(BaseLoggedInView):
 
     breadcrumb = BreadCrumb()
     back = Text(".//a[contains(@class, 'btn') and @data-id='aid_discovered_hosts']")
-    actions = ActionsDropdown("//div[contains(@class, 'btn-group')][a[@data-toggle='dropdown']]")
+    actions = ActionsDropdown(".//div[contains(@class, 'btn-group')][a[@data-toggle='dropdown']]")
     delete = Text(".//a[contains(@data-confirm, 'Delete')]")
     expand_all = Text(".//a[@id='expand_all']")
-    interfaces = SatTable("//div[@id='interfaces-panel']/table")
-    highlights = DiscoveredHostDetailsTable("//div[@id='category-highlights']//table")
-    storage = DiscoveredHostDetailsTable("//div[@id='category-storage']//table")
-    hardware = DiscoveredHostDetailsTable("//div[@id='category-hardware']//table")
-    network = DiscoveredHostDetailsTable("//div[@id='category-network']//table")
-    software = DiscoveredHostDetailsTable("//div[@id='category-software']//table")
-    miscellaneous = DiscoveredHostDetailsTable("//div[@id='category-miscellaneous']//table")
+    interfaces = SatTable(".//div[@id='interfaces-panel']/table")
+    highlights = DiscoveredHostDetailsTable(".//div[@id='category-highlights']//table")
+    storage = DiscoveredHostDetailsTable(".//div[@id='category-storage']//table")
+    hardware = DiscoveredHostDetailsTable(".//div[@id='category-hardware']//table")
+    network = DiscoveredHostDetailsTable(".//div[@id='category-network']//table")
+    software = DiscoveredHostDetailsTable(".//div[@id='category-software']//table")
+    miscellaneous = DiscoveredHostDetailsTable(".//div[@id='category-miscellaneous']//table")
 
     @property
     def is_displayed(self):
@@ -133,7 +133,7 @@ class DiscoveredHostsActionDialog(BaseLoggedInView):
     """Common dialog view for all discovered hosts actions"""
 
     title = None
-    table = SatTable("//div[@class='modal-body']//table")
+    table = SatTable(".//div[@class='modal-body']//table")
     submit = Button('Submit')
 
     @property
@@ -145,7 +145,7 @@ class DiscoveredHostsAutoProvisionDialog(DiscoveredHostsActionDialog):
     """Discovered hosts Auto Provision action dialog view"""
 
     title = Text(
-        "//h4[normalize-space(.)='Auto Provision - The following hosts are about to be changed']"
+        ".//h4[normalize-space(.)='Auto Provision - The following hosts are about to be changed']"
     )
 
 
@@ -153,7 +153,7 @@ class DiscoveredHostsAssignOrganizationDialog(DiscoveredHostsActionDialog):
     """Discovered hosts Assign Organization action dialog view"""
 
     title = Text(
-        "//h4[normalize-space(.)='Assign Organization - "
+        ".//h4[normalize-space(.)='Assign Organization - "
         "The following hosts are about to be changed']"
     )
     organization = Select(id='organization_id')
@@ -163,7 +163,7 @@ class DiscoveredHostsAssignLocationDialog(DiscoveredHostsActionDialog):
     """Discovered hosts Assign Location action dialog view"""
 
     title = Text(
-        "//h4[normalize-space(.)='Assign Location - The following hosts are about to be changed']"
+        ".//h4[normalize-space(.)='Assign Location - The following hosts are about to be changed']"
     )
     location = Select(id='location_id')
 
@@ -171,13 +171,13 @@ class DiscoveredHostsAssignLocationDialog(DiscoveredHostsActionDialog):
 class DiscoveredHostsRebootDialog(DiscoveredHostsActionDialog):
     """Discovered hosts Reboot dialog action view"""
 
-    title = Text("//h4[normalize-space(.)='Reboot - The following hosts are about to be changed']")
+    title = Text(".//h4[normalize-space(.)='Reboot - The following hosts are about to be changed']")
 
 
 class DiscoveredHostsDeleteDialog(DiscoveredHostsActionDialog):
     """Discovered hosts Delete dialog action view"""
 
-    title = Text("//h4[normalize-space(.)='Delete - The following hosts are about to be changed']")
+    title = Text(".//h4[normalize-space(.)='Delete - The following hosts are about to be changed']")
 
 
 class DiscoveredHostProvisionDialog(BaseLoggedInView):

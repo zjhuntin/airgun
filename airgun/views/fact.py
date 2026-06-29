@@ -1,5 +1,5 @@
 from widgetastic.widget import Table, Text
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SearchableViewMixinPF4
 
@@ -14,7 +14,7 @@ class HostFactView(BaseLoggedInView, SearchableViewMixinPF4):
         },
     )
     expand_fact_value = Text(
-        "//div/a[contains(@class, 'pf-v5-c-button') or contains(span/@class, 'pf-v5-c-icon')]"
+        ".//div/a[contains(@class, 'pf-v5-c-button') or contains(span/@class, 'pf-v5-c-icon')]"
     )
 
     @property

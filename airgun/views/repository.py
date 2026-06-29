@@ -7,7 +7,7 @@ from widgetastic.widget import (
     TextInput,
     View,
 )
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import (
     BaseLoggedInView,
@@ -27,9 +27,9 @@ from airgun.widgets import (
 
 class RepositoriesView(BaseLoggedInView, SearchableViewMixin):
     breadcrumb = BreadCrumb()
-    new = Text("//button[contains(@href, '/repositories/new')]")
-    sync = Text("//button[contains(@ng-click, 'syncSelectedRepositories')]")
-    delete = Text("//button[contains(@ng-show, 'canRemoveRepositories')]")
+    new = Text(".//button[contains(@href, '/repositories/new')]")
+    sync = Text(".//button[contains(@ng-click, 'syncSelectedRepositories')]")
+    delete = Text(".//button[contains(@ng-show, 'canRemoveRepositories')]")
     dialog = ConfirmationDialog()
     table = SatTable(
         locator='.//table',
@@ -54,7 +54,7 @@ class RepositoryCreateView(BaseLoggedInView):
     name = TextInput(id='name')
     label = TextInput(id='label')
     repo_type = Select(id='content_type')
-    submit = Text("//button[contains(@ng-click, 'handleSave')]")
+    submit = Text(".//button[contains(@ng-click, 'handleSave')]")
     repo_content = ConditionalSwitchableView(reference='repo_type')
 
     @repo_content.register('docker')
@@ -215,7 +215,7 @@ class AuthorizationEntry(EditableEntry):
 
 class RepositoryEditView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    actions = ActionsDropdown("//div[contains(@class, 'btn-group')]")
+    actions = ActionsDropdown(".//div[contains(@class, 'btn-group')]")
     dialog = ConfirmationDialog()
     name = EditableEntry(name='Name')
     label = ReadOnlyEntry(name='Label')
@@ -258,7 +258,7 @@ class RepositoryEditView(BaseLoggedInView):
         download_policy = EditableEntrySelect(name='Download Policy')
         mirroring_policy = EditableEntrySelect(name='Mirroring Policy')
         upload_content = FileInput(name='content[]')
-        upload = Text("//button[contains(., 'Upload')]")
+        upload = Text(".//button[contains(., 'Upload')]")
         proxy_policy = ConditionalSwitchableView(reference='http_proxy_policy')
 
         @proxy_policy.register(True, default=True)
@@ -273,7 +273,7 @@ class RepositoryEditView(BaseLoggedInView):
         verify_ssl = EditableEntryCheckbox(name='Verify SSL')
         upstream_authorization = AuthorizationEntry(name='Upstream Authorization')
         upload_content = FileInput(name='content[]')
-        upload = Text("//button[contains(., 'Upload')]")
+        upload = Text(".//button[contains(., 'Upload')]")
         http_proxy_policy = EditableEntrySelect(name='HTTP proxy')
         proxy_policy = ConditionalSwitchableView(reference='http_proxy_policy')
         mirroring_policy = EditableEntrySelect(name='Mirroring Policy')
@@ -329,7 +329,7 @@ class RepositoryPackagesView(BaseLoggedInView, SearchableViewMixin):
     )
     select_all = Checkbox(locator=".//input[@type='checkbox'][@ng-change='allSelected()']")
     items_per_page = Select(locator=".//select[@ng-model='table.params.per_page']")
-    total_packages = Text("//span[@class='pagination-pf-items-total ng-binding']")
+    total_packages = Text(".//span[@class='pagination-pf-items-total ng-binding']")
     remove_packages = Text(".//button[@ng-click='openModal()']")
 
     @property

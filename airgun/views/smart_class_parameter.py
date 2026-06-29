@@ -6,7 +6,7 @@ from widgetastic.widget import (
     TextInput,
     View,
 )
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SearchableViewMixin
 from airgun.widgets import SatTable, TextInputHidden
@@ -52,7 +52,7 @@ class SmartClassParameterContent(View):
 
     @View.nested
     class prioritize_attribute_order(View):
-        order = TextInput(locator="//textarea[@id='order']")
+        order = TextInput(locator=".//textarea[@id='order']")
         merge_overrides = Checkbox(locator=".//input[contains(@id, 'merge_overrides')]")
         merge_default = Checkbox(locator=".//input[contains(@id, 'merge_default')]")
         avoid_duplicates = Checkbox(locator=".//input[contains(@id, 'avoid_duplicates')]")
@@ -102,7 +102,7 @@ class SmartClassParameterContent(View):
 
 
 class SmartClassParametersView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h1[normalize-space(.)='Smart Class Parameters']")
+    title = Text(".//h1[normalize-space(.)='Smart Class Parameters']")
     table = SatTable(
         './/table',
         column_widgets={
@@ -119,8 +119,8 @@ class SmartClassParametersView(BaseLoggedInView, SearchableViewMixin):
 class SmartClassParameterEditView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
     BREADCRUMB_LENGTH = 2
-    parameter = SmartClassParameterContent(locator="//div[@class='tab-pane fields']")
-    submit = Text('//input[@name="commit"]')
+    parameter = SmartClassParameterContent(locator=".//div[@class='tab-pane fields']")
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):

@@ -1,5 +1,5 @@
 from widgetastic.widget import Text, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import (
     BaseLoggedInView,
@@ -12,7 +12,7 @@ from airgun.widgets import SatTable
 
 
 class ContainerImageTagsView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h2[contains(., 'Container Image Tags')]")
+    title = Text(".//h2[contains(., 'Container Image Tags')]")
     table = SatTable('.//table', column_widgets={'Name': Text('./a')})
 
     @property

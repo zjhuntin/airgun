@@ -7,7 +7,7 @@ from widgetastic.widget import (
     TextInput,
     View,
 )
-from widgetastic_patternfly import BreadCrumb, Button
+from widgetastic_patternfly5 import BreadCrumb, Button
 
 from airgun.exceptions import ReadOnlyWidgetError
 from airgun.views.common import (
@@ -75,7 +75,7 @@ class ProductContentItemsList(GenericLocatorWidget):
         result = wait_for(lambda: self.has_items, timeout=5, silent_failure=True)
         if not result:
             return []
-        return [elem.text for elem in self.browser.elements(self.ITEMS)]
+        return [self.browser.text(elem) for elem in self.browser.elements(self.ITEMS)]
 
     def fill(self, value):
         raise ReadOnlyWidgetError('Widget is read only, fill is prohibited')
@@ -85,8 +85,8 @@ class SubscriptionColumnsFilter(GenericLocatorWidget):
     """This is the list of interaction items for when opening up the selectable customizable
     checkboxes"""
 
-    ITEMS_LOCATOR = "//div[@id='subscriptionTableTooltip']//li/span"
-    CHECKBOX_LOCATOR = "//div[@id='subscriptionTableTooltip']//li/span[.='{}']/preceding::input[1]"
+    ITEMS_LOCATOR = ".//div[@id='subscriptionTableTooltip']//li/span"
+    CHECKBOX_LOCATOR = ".//div[@id='subscriptionTableTooltip']//li/span[.='{}']/preceding::input[1]"
 
     @property
     def is_open(self):
@@ -101,7 +101,7 @@ class SubscriptionColumnsFilter(GenericLocatorWidget):
             self.click()
 
     def checkboxes(self):
-        labels = [line.text for line in self.browser.elements(self.ITEMS_LOCATOR)]
+        labels = [self.browser.text(line) for line in self.browser.elements(self.ITEMS_LOCATOR)]
         return {
             label: Checkbox(self, locator=self.CHECKBOX_LOCATOR.format(label)) for label in labels
         }
@@ -126,20 +126,20 @@ class SubscriptionListView(BaseLoggedInView, SearchableViewMixinPF4):
     """List of all subscriptions."""
 
     table = SatSubscriptionsViewTable(
-        locator='//div[@id="subscriptions-table"]//table',
+        locator='.//div[@id="subscriptions-table"]//table',
         column_widgets={
             'Select all rows': Checkbox(locator=".//input[@type='checkbox']"),
             'Name': Text('./a'),
         },
     )
 
-    add_button = Button(href='subscriptions/add')
-    manage_manifest_button = Button('Manage Manifest')
+    add_button = Button(locator=".//a[contains(@href, 'subscriptions/add')]")
+    manage_manifest_button = Button(locator=".//button[normalize-space(.)='Manage Manifest']")
     import_manifest_button = Button('Import a Manifest')
-    add_subscriptions_button = Button('Add subscriptions')
-    export_csv_button = Button('Export CSV')
-    delete_button = Button('Delete')
-    progressbar = ProgressBar('//div[contains(@class,"progress-bar-striped")]')
+    add_subscriptions_button = Button(locator=".//button[normalize-space(.)='Add subscriptions']")
+    export_csv_button = Button(locator=".//button[normalize-space(.)='Export CSV']")
+    delete_button = Button(locator=".//button[normalize-space(.)='Delete']")
+    progressbar = ProgressBar('.//div[contains(@class,"progress-bar-striped")]')
     confirm_deletion = DeleteSubscriptionConfirmationDialog()
     columns_filter_checkboxes = SubscriptionColumnsFilter(
         ".//form[div[contains(@class, 'filter')]]/div/i"
@@ -162,18 +162,18 @@ class SubscriptionListView(BaseLoggedInView, SearchableViewMixinPF4):
 
 
 class ManageManifestView(BaseLoggedInView, PF5ModalViewMixin):
-    ROOT = '//div[@id="manageManifestModal"]'
+    ROOT = './/div[@id="manageManifestModal"]'
     close_button = Button('Close')
 
     @View.nested
     class manifest(SatTab):
         alert_message = Text('.//div[contains(@class, "pf-v5-c-alert")]')
-        expire_header = Text('//div[@id="manifest-history-tabs-pane-1"]/div/div/h4')
+        expire_header = Text('.//div[@id="manifest-history-tabs-pane-1"]/div/div/h4')
         expire_message = Text(
-            '//div[@id="manifest-history-tabs-pane-1"]/div/div/h4//following-sibling::div'
+            './/div[@id="manifest-history-tabs-pane-1"]/div/div/h4//following-sibling::div'
         )
         expire_date = Text(
-            '//div[@id="manifest-history-tabs-pane-1"]/div/hr//following-sibling::div[2]/div[2]'
+            './/div[@id="manifest-history-tabs-pane-1"]/div/hr//following-sibling::div[2]/div[2]'
         )
         red_hat_cdn_url = TextInput(id='cdnUrl')
         manifest_file = FileInput(id='usmaFile')
@@ -184,13 +184,13 @@ class ManageManifestView(BaseLoggedInView, PF5ModalViewMixin):
     class manifest_history(SatTab):
         TAB_NAME = 'Manifest History'
         table = SatTable(
-            locator='//div[@id="manifest-history-tabs"]//table',
+            locator='.//div[@id="manifest-history-tabs"]//table',
             column_widgets={'Status': Text(), 'Message': Text(), 'Timestamp': Text()},
         )
 
 
 class DeleteManifestConfirmationView(BaseLoggedInView, PF5ModalViewMixin):
-    ROOT = '//div[@id="deleteManifestModal"]'
+    ROOT = './/div[@id="deleteManifestModal"]'
     message = Text('.//div[contains(@class, "pf-v5-c-modal-box__body")]')
     delete_button = Button('Delete')
     cancel_button = Button('Cancel')

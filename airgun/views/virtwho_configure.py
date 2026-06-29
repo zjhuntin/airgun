@@ -9,7 +9,7 @@ from widgetastic.widget import (
     View,
     Widget,
 )
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.exceptions import ReadOnlyWidgetError
 from airgun.views.common import BaseLoggedInView, SatTab, SearchableViewMixin
@@ -69,7 +69,7 @@ class VirtwhoConfigureScript(Widget):
     @property
     def content(self):
         element = self.browser.element(self.SCRIPT_PRE)
-        return element.get_attribute('innerHTML')
+        return element.inner_html()
 
     def read(self):
         """Returns the script content"""
@@ -130,8 +130,8 @@ class VirtwhoConfiguresAHVDebug(Widget):
 
 
 class VirtwhoConfiguresView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h1[normalize-space(.)='Virt-who Configurations']")
-    new = Text("//a[contains(@href, '/foreman_virt_who_configure/configs/new')]")
+    title = Text(".//h1[normalize-space(.)='Virt-who Configurations']")
+    new = Text(".//a[contains(@href, '/foreman_virt_who_configure/configs/new')]")
     table = Table(
         './/table',
         column_widgets={
@@ -161,7 +161,7 @@ class VirtwhoConfigureCreateView(BaseLoggedInView):
     hypervisor_type = FilteredDropdown(id='foreman_virt_who_configure_config_hypervisor_type')
     hypervisor_content = ConditionalSwitchableView(reference='hypervisor_type')
     ahv_internal_debug = Checkbox(id='foreman_virt_who_configure_config_ahv_internal_debug')
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @hypervisor_content.register(
         lambda hypervisor_type: hypervisor_type.endswith(('(esx)', '(hyperv)', '(xen)'))
@@ -228,8 +228,8 @@ class VirtwhoConfigureEditView(VirtwhoConfigureCreateView):
 
 class VirtwhoConfigureDetailsView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    edit = Text("//a[normalize-space(.)='Edit']")
-    delete = Text("//a[normalize-space(.)='Delete']")
+    edit = Text(".//a[normalize-space(.)='Edit']")
+    delete = Text(".//a[normalize-space(.)='Delete']")
 
     @property
     def is_displayed(self):
@@ -261,7 +261,9 @@ class VirtwhoConfigureDetailsView(BaseLoggedInView):
         kubeconfig_path = Text('.//span[contains(@class,"config-kubeconfig_path")]')
         prism_flavor = Text('.//span[contains(@class,"config-prism_flavor")]')
 
-        _label_locator = "//span[contains(@class, '{class_name}')]/../preceding-sibling::div/strong"
+        _label_locator = (
+            ".//span[contains(@class, '{class_name}')]/../preceding-sibling::div/strong"
+        )
         status_label = Text(_label_locator.format(class_name='config-status'))
         debug_label = Text(_label_locator.format(class_name='config-debug'))
         hypervisor_type_label = Text(_label_locator.format(class_name='config-hypervisor_type'))
@@ -288,6 +290,6 @@ class VirtwhoConfigureDetailsView(BaseLoggedInView):
 
     @View.nested
     class deploy(SatTab):
-        command = Text("//pre[@id='config_command']")
+        command = Text(".//pre[@id='config_command']")
         script = VirtwhoConfigureScript()
-        download = Text("//a[normalize-space(.)='Download the script']")
+        download = Text(".//a[normalize-space(.)='Download the script']")

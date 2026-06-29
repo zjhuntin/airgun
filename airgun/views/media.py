@@ -1,13 +1,13 @@
 from widgetastic.widget import Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SatTab, SearchableViewMixinPF4
 from airgun.widgets import FilteredDropdown, MultiSelect
 
 
 class MediumView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Installation Media']")
-    new = Text("//a[contains(@href, '/media/new')]")
+    title = Text(".//h1[normalize-space(.)='Installation Media']")
+    new = Text(".//a[contains(@href, '/media/new')]")
     table = Table(
         './/table',
         column_widgets={
@@ -23,7 +23,7 @@ class MediumView(BaseLoggedInView, SearchableViewMixinPF4):
 
 class MediaCreateView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):

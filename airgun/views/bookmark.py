@@ -1,12 +1,12 @@
 from widgetastic.widget import Checkbox, Text, TextInput
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SearchableViewMixinPF4
 from airgun.widgets import SatTable
 
 
 class BookmarksView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Bookmarks']")
+    title = Text(".//h1[normalize-space(.)='Bookmarks']")
     table = SatTable(
         './/table',
         column_widgets={

@@ -9,7 +9,7 @@ from widgetastic.widget import (
     TextInput,
     View,
 )
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import (
     BaseLoggedInView,
@@ -30,8 +30,8 @@ from airgun.widgets import (
 
 
 class ComputeResourcesView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text('//*[(self::h1 or self::h5) and normalize-space(.)="Compute Resources"]')
-    new = Text('//a[normalize-space(.)="Create Compute Resource"]')
+    title = Text('.//*[(self::h1 or self::h5) and normalize-space(.)="Compute Resources"]')
+    new = Text('.//a[normalize-space(.)="Create Compute Resource"]')
     table = SatTable(
         './/table',
         column_widgets={
@@ -50,7 +50,7 @@ class ResourceProviderCreateView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
     name = TextInput(id='compute_resource_name')
     description = TextInput(id='compute_resource_description')
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     provider = FilteredDropdown(id='compute_resource_provider')
     provider_content = ConditionalSwitchableView(reference='provider')
@@ -62,7 +62,7 @@ class ResourceProviderCreateView(BaseLoggedInView):
 
         @View.nested
         class region(View):
-            load_regions = Text("//a[contains(@id,'test_connection_button')]")
+            load_regions = Text(".//a[contains(@id,'test_connection_button')]")
             value = FilteredDropdown(id='compute_resource_region')
 
             def before_fill(self, values=None):
@@ -75,11 +75,11 @@ class ResourceProviderCreateView(BaseLoggedInView):
     @provider_content.register('Google')
     class GCEProviderForm(View):
         json_key = TextInput(id='gce_json')
-        upload_button = Text("//input[@id='password_json']")
+        upload_button = Text(".//input[@id='password_json']")
 
         @View.nested
         class zone(View):
-            load_zones = Text("//a[contains(@id,'test_connection_button')]")
+            load_zones = Text(".//a[contains(@id,'test_connection_button')]")
             value = FilteredDropdown(id='compute_resource_zone')
 
             def before_fill(self, values=None):
@@ -128,7 +128,7 @@ class ResourceProviderCreateView(BaseLoggedInView):
 
         @View.nested
         class datacenter(View):
-            load_datacenters = Text("//a[contains(@id,'test_connection_button')]")
+            load_datacenters = Text(".//a[contains(@id,'test_connection_button')]")
             value = FilteredDropdown(id='compute_resource_datacenter')
 
             def before_fill(self, values=None):
@@ -169,8 +169,8 @@ class ResourceProviderEditView(ResourceProviderCreateView):
 
 class ResourceProviderDetailView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
-    create_image = Text("//a[contains(@class,'btn-primary')]")
+    submit = Text('.//input[@name="commit"]')
+    create_image = Text(".//a[contains(@class,'btn-primary')]")
 
     @property
     def is_displayed(self):
@@ -193,7 +193,7 @@ class ResourceProviderDetailView(BaseLoggedInView):
         TAB_NAME = 'Virtual Machines'
         ROOT = ".//div[@id='vms']"
 
-        actions = ActionsDropdown("//div[contains(@class, 'btn-group')]")
+        actions = ActionsDropdown(".//div[contains(@class, 'btn-group')]")
         table = Table(
             './/table',
             column_widgets={
@@ -298,7 +298,7 @@ class ResourceProviderProfileView(BaseLoggedInView):
 
     provider_content = ConditionalSwitchableView(reference='current_provider')
 
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def current_provider(self):
@@ -321,12 +321,12 @@ class ResourceProviderProfileView(BaseLoggedInView):
 
         @View.nested
         class network_interfaces(RemovableWidgetsItemsListView):
-            ROOT = "//fieldset[@id='network_interfaces']"
+            ROOT = ".//fieldset[@id='network_interfaces']"
             ITEM_WIDGET_CLASS = ComputeResourceLibvirtProfileNetworkItem
 
         @View.nested
         class storage(RemovableWidgetsItemsListView):
-            ROOT = "//fieldset[@id='storage_volumes']"
+            ROOT = ".//fieldset[@id='storage_volumes']"
             ITEMS = "./div/div[contains(@class, 'removable-item')]"
             ITEM_WIDGET_CLASS = ComputeResourceLibvirtProfileStorageItem
 
@@ -355,7 +355,7 @@ class ResourceProviderProfileView(BaseLoggedInView):
         cores_per_socket = TextInput(id='compute_attribute_vm_attrs_corespersocket')
         memory = TextInput(id='compute_attribute_vm_attrs_memory_mb')
         firmware = RadioGroup(
-            "//div[label[input[contains(@id, 'compute_attribute_vm_attrs_firmware')]]]"
+            ".//div[label[input[contains(@id, 'compute_attribute_vm_attrs_firmware')]]]"
         )
         cluster = FilteredDropdown(id='compute_attribute_vm_attrs_cluster')
         resource_pool = FilteredDropdown(id='compute_attribute_vm_attrs_resource_pool')
@@ -370,7 +370,7 @@ class ResourceProviderProfileView(BaseLoggedInView):
 
         @View.nested
         class network_interfaces(RemovableWidgetsItemsListView):
-            ROOT = "//fieldset[@id='network_interfaces']"
+            ROOT = ".//fieldset[@id='network_interfaces']"
             ITEM_WIDGET_CLASS = ComputeResourceVMwareProfileNetworkItem
 
             nic_type = FilteredDropdown(id='select2-chosen-9')
@@ -378,14 +378,14 @@ class ResourceProviderProfileView(BaseLoggedInView):
 
         @View.nested
         class storage(RemovableWidgetsItemsListView):
-            ROOT = "//div[contains(concat(' ', @class, ' '), ' vmware-storage-container ')]"
-            ITEMS = "//div[contains(concat(' ', @class, ' '), ' controller-container ')]"
+            ROOT = ".//div[contains(concat(' ', @class, ' '), ' vmware-storage-container ')]"
+            ITEMS = ".//div[contains(concat(' ', @class, ' '), ' controller-container ')]"
             ITEM_WIDGET_CLASS = ComputeResourceVMwareProfileStorageItem
             add_item_button = Text(
-                "//button[contains(concat(' ', @class, ' '), ' btn-add-controller ')]"
+                ".//button[contains(concat(' ', @class, ' '), ' btn-add-controller ')]"
             )
             data_store = FilteredDropdown(
-                "//div[@class='select2-container form-control select2-allowclear']/a/span[1]"
+                ".//div[@class='select2-container form-control select2-allowclear']/a/span[1]"
             )
 
     @property
@@ -427,7 +427,7 @@ class ComputeResourceGenericImageCreateView(BaseLoggedInView):
     user_data = Checkbox(id='image_user_data')
     password = TextInput(id='image_password')
     image = FilteredDropdown(id='image_uuid')
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):

@@ -1,13 +1,13 @@
 from widgetastic.widget import Table, Text, TextInput
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SearchableViewMixinPF4
 from airgun.widgets import MultiSelect
 
 
 class ArchitecturesView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Architectures']")
-    new = Text("//a[contains(@href, '/architectures/new')]")
+    title = Text(".//h1[normalize-space(.)='Architectures']")
+    new = Text(".//a[contains(@href, '/architectures/new')]")
     table = Table(
         './/table',
         column_widgets={
@@ -23,8 +23,8 @@ class ArchitecturesView(BaseLoggedInView, SearchableViewMixinPF4):
 
 class ArchitectureDetailsView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    name = TextInput(locator="//input[@id='architecture_name']")
-    submit = Text('//input[@name="commit"]')
+    name = TextInput(locator=".//input[@id='architecture_name']")
+    submit = Text('.//input[@name="commit"]')
     operatingsystems = MultiSelect(id='ms-architecture_operatingsystem_ids')
 
     @property

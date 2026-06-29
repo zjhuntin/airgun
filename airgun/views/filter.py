@@ -3,8 +3,7 @@ from widgetastic.widget import (
     Text,
     TextInput,
 )
-from widgetastic_patternfly import BreadCrumb
-from widgetastic_patternfly4 import Pagination as PF4Pagination
+from widgetastic_patternfly5 import BreadCrumb, Pagination as PF4Pagination
 
 from airgun.views.common import BaseLoggedInView
 from airgun.widgets import (
@@ -18,7 +17,7 @@ from airgun.widgets import (
 class FiltersView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
     searchbox = Search()
-    new = Text("//a[contains(@href, '/filters/new')]")
+    new = Text(".//a[contains(@href, '/filters/new')]")
     table = Table(
         './/table',
         column_widgets={
@@ -52,7 +51,7 @@ class FilterDetailsView(BaseLoggedInView):
     )
     permission = PF4MultiSelect('.//div[@id="permission-duel-select"]')
     filter = TextInput(id='search')
-    submit = Text('//button[@data-ouia-component-id="filters-submit-button"]')
+    submit = Text('.//button[@data-ouia-component-id="filters-submit-button"]')
 
     @property
     def is_displayed(self):

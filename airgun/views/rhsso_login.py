@@ -4,8 +4,8 @@ from widgetastic.widget import ClickableMixin, Text, TextInput, View
 class RhssoLoginView(View, ClickableMixin):
     username = TextInput(id='username')
     password = TextInput(id='password')
-    submit = Text('//input[@name="login"]')
-    error_message = Text('//span[@id="input-error"]')
+    submit = Text('.//input[@name="login"]')
+    error_message = Text('.//span[@id="input-error"]')
 
     @property
     def is_displayed(self):
@@ -13,8 +13,8 @@ class RhssoLoginView(View, ClickableMixin):
 
 
 class RhssoExternalLogoutView(View, ClickableMixin):
-    login_again = Text('//a[@href="/users/extlogin"]')
-    logo = Text('//img[@alt="logo"]')
+    login_again = Text('.//a[@href="/users/extlogin"]')
+    logo = Text('.//img[@alt="logo"]')
 
     @property
     def is_displayed(self):
@@ -31,7 +31,7 @@ class RhssoTwoFactorSuccessView(View, ClickableMixin):
 
 class RhssoTotpView(View, ClickableMixin):
     totp = TextInput(id='otp')
-    submit = Text('//input[@name="login"]')
+    submit = Text('.//input[@name="login"]')
 
     @property
     def is_displayed(self):

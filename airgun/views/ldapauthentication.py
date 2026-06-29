@@ -1,5 +1,5 @@
 from widgetastic.widget import Checkbox, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SatTab
 from airgun.widgets import (
@@ -12,13 +12,13 @@ from airgun.widgets import (
 
 class LDAPAuthenticationsView(BaseLoggedInView):
     title = Text(
-        "//h1[normalize-space(.)='Authentication Sources' or "
+        ".//h1[normalize-space(.)='Authentication Sources' or "
         "normalize-space(.)='LDAP authentication sources']"
     )
     internal = AuthSourceAggregateCard(name='Internal')
     external = AuthSourceAggregateCard(name='External')
     ldap = AuthSourceAggregateCard(name='LDAP')
-    new = Text("//a[contains(@href, '/auth_source_ldaps/new')]")
+    new = Text(".//a[contains(@href, '/auth_source_ldaps/new')]")
     table = SatTable(
         './/table',
         column_widgets={
@@ -34,7 +34,7 @@ class LDAPAuthenticationsView(BaseLoggedInView):
 
 class LDAPAuthenticationCreateView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):
@@ -51,7 +51,7 @@ class LDAPAuthenticationCreateView(BaseLoggedInView):
 
         name = TextInput(id='auth_source_ldap_name')
         host = TextInput(id='auth_source_ldap_host')
-        text_connection = Text('//a[@id="test_connection_button"]')
+        text_connection = Text('.//a[@id="test_connection_button"]')
         ldaps = Checkbox(id='auth_source_ldap_tls')
         port = TextInput(id='auth_source_ldap_port')
         server_type = FilteredDropdown(id='auth_source_ldap_server_type')

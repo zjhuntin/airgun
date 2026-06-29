@@ -1,5 +1,5 @@
 from widgetastic.widget import Checkbox, ParametrizedView, Select, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import (
     AddRemoveResourcesView,
@@ -23,8 +23,8 @@ from airgun.widgets import (
 
 
 class HostCollectionsView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h2[contains(., 'Host Collections')]")
-    new = Text("//button[contains(@href, '/host_collections/new')]")
+    title = Text(".//h2[contains(., 'Host Collections')]")
+    new = Text(".//button[contains(@href, '/host_collections/new')]")
     table = SatTable('.//table', column_widgets={'Name': Text('./a')})
 
     @property
@@ -38,7 +38,7 @@ class HostCollectionCreateView(BaseLoggedInView):
     unlimited_hosts = Checkbox(name='limit')
     max_hosts = TextInput(id='max_hosts')
     description = TextInput(id='description')
-    submit = Text("//button[contains(@ng-click, 'handleSave')]")
+    submit = Text(".//button[contains(@ng-click, 'handleSave')]")
 
     @property
     def is_displayed(self):
@@ -52,7 +52,7 @@ class HostCollectionCreateView(BaseLoggedInView):
 
 class HostCollectionEditView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    actions = ActionsDropdown("//div[contains(@class, 'btn-group')]")
+    actions = ActionsDropdown(".//div[contains(@class, 'btn-group')]")
     dialog = ConfirmationDialog()
 
     @property
@@ -145,27 +145,27 @@ class HostCollectionPackageContentRadioGroup(RadioGroup):
 
 
 class HostCollectionManagePackagesView(BaseLoggedInView):
-    title = Text("//h4[contains(., 'Update Packages')]")
+    title = Text(".//h4[contains(., 'Update Packages')]")
     update_all = ActionsDropdown(
-        "//span[contains(@class, 'input-group')][button[contains(@ng-click, 'update all')]]"
+        ".//span[contains(@class, 'input-group')][button[contains(@ng-click, 'update all')]]"
     )
-    content_type = HostCollectionPackageContentRadioGroup("//div[@name='systemContentForm']/div")
+    content_type = HostCollectionPackageContentRadioGroup(".//div[@name='systemContentForm']/div")
 
     packages = TextInput(
-        locator=("//input[@type='text' and contains(@ng-model, 'content.content')]")
+        locator=(".//input[@type='text' and contains(@ng-model, 'content.content')]")
     )
     install = ActionsDropdown(
-        "//span[contains(@class, 'input-group')][button[contains(@ng-click, 'install')]]"
+        ".//span[contains(@class, 'input-group')][button[contains(@ng-click, 'install')]]"
     )
     update = ActionsDropdown(
-        "//span[contains(@class, 'input-group')]"
+        ".//span[contains(@class, 'input-group')]"
         "[button[contains(@ng-click, 'update') "
         "and not(contains(@ng-click, 'update all'))]]"
     )
     remove = ActionsDropdown(
-        "//span[contains(@class, 'input-group')][button[contains(@ng-click, 'remove')]]"
+        ".//span[contains(@class, 'input-group')][button[contains(@ng-click, 'remove')]]"
     )
-    done = Text("//button[@ng-click='ok()']")
+    done = Text(".//button[@ng-click='ok()']")
 
     @property
     def is_displayed(self):
@@ -196,12 +196,12 @@ class HostCollectionManagePackagesView(BaseLoggedInView):
 
 
 class HostCollectionInstallErrataView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h4[contains(., 'Content Host Errata Management')]")
+    title = Text(".//h4[contains(., 'Content Host Errata Management')]")
     search = TextInput(locator=".//input[@type='text' and @ng-model='table.searchTerm']")
     refresh = Text(locator=".//button[@ng-click='fetchErrata()']")
-    search_url = Text(locator="//a[contains(@href, 'content_hosts')]")
+    search_url = Text(locator=".//a[contains(@href, 'content_hosts')]")
     install = ActionsDropdown(
-        "//span[contains(@class, 'btn-group')]"
+        ".//span[contains(@class, 'btn-group')]"
         "[button[contains(@class, 'btn') "
         "and contains(@ng-click, 'showConfirm')]]"
     )
@@ -221,9 +221,9 @@ class HostCollectionInstallErrataView(BaseLoggedInView, SearchableViewMixin):
 
 
 class HostCollectionManageModuleStreamsView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h4[contains(., 'Content Host Module Stream Management')]")
+    title = Text(".//h4[contains(., 'Content Host Module Stream Management')]")
     table = SatTable(
-        locator='//table',
+        locator='.//table',
         column_widgets={
             'Name': Text('.//a'),
             'Actions': ActionDropdownWithCheckbox(".//div[contains(@class, 'dropdown')]"),
@@ -237,7 +237,7 @@ class HostCollectionManageModuleStreamsView(BaseLoggedInView, SearchableViewMixi
 
 
 class HostCollectionChangeAssignedContentView(BaseLoggedInView):
-    title = Text("//h4[contains(., 'Content Host Bulk Content')]")
+    title = Text(".//h4[contains(., 'Content Host Bulk Content')]")
     lce = ParametrizedView.nested(LCESelectorGroup)
     content_view = Select(locator=".//select[@ng-model='selected.contentView']")
     assign = Text(locator=".//form/button[contains(@ng-click, 'showConfirm')]")
@@ -258,7 +258,7 @@ class HostCollectionChangeAssignedContentView(BaseLoggedInView):
 
 
 class HostCollectionActionTaskDetailsView(TaskDetailsView):
-    title = Text("//h4[contains(., 'Task Details')]")
+    title = Text(".//h4[contains(., 'Task Details')]")
     breadcrumb = None
 
     @property

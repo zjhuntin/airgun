@@ -6,7 +6,7 @@ from widgetastic.widget import (
     TextInput,
     View,
 )
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import (
     AddRemoveResourcesView,
@@ -30,8 +30,8 @@ from airgun.widgets import (
 class ActivationKeysView(BaseLoggedInView, SearchableViewMixin):
     """View for the ActivationKeys page"""
 
-    title = Text("//h2[contains(., 'Activation Keys')]")
-    new = Text("//button[contains(@href, '/activation_keys/new')]")
+    title = Text(".//h2[contains(., 'Activation Keys')]")
+    new = Text(".//button[contains(@href, '/activation_keys/new')]")
     table = Table('.//table', column_widgets={'Name': Text('.//a')})
 
     @property
@@ -48,9 +48,9 @@ class ActivationKeyCreateView(BaseLoggedInView):
     description = TextInput(id='description')
 
     # Button/link to open CV/LCE assignment modal
-    assign_cv_env_btn = Text("//button[contains(., 'Assign') or contains(@ng-click, 'assign')]")
+    assign_cv_env_btn = Text(".//button[contains(., 'Assign') or contains(@ng-click, 'assign')]")
 
-    submit = Text("//button[contains(@ng-click, 'handleSave')]")
+    submit = Text(".//button[contains(@ng-click, 'handleSave')]")
 
     @property
     def is_displayed(self):
@@ -66,7 +66,7 @@ class ActivationKeyEditView(BaseLoggedInView):
     """View for the ActivationKeys Edit page"""
 
     breadcrumb = BreadCrumb()
-    actions = ActionsDropdown("//div[contains(@class, 'btn-group')]")
+    actions = ActionsDropdown(".//div[contains(@class, 'btn-group')]")
     dialog = ConfirmationDialog()
 
     @property
@@ -84,17 +84,17 @@ class ActivationKeyEditView(BaseLoggedInView):
         description = EditableEntry(name='Description')
         hosts_limit = EditableLimitEntry(name='Host Limit')
         host_limit_edit_btn = Text(
-            locator='//dd[@bst-edit-custom="activationKey.max_hosts"]//div[@ng-click="edit()"]'
+            locator='.//dd[@bst-edit-custom="activationKey.max_hosts"]//div[@ng-click="edit()"]'
         )
         unlimited_content_host_checkbox = Checkbox(
-            locator='//input[@ng-model="activationKey.unlimited_hosts"]'
+            locator='.//input[@ng-model="activationKey.unlimited_hosts"]'
         )
-        host_limit_input = TextInput(locator='//input[@ng-model="activationKey.max_hosts"]')
+        host_limit_input = TextInput(locator='.//input[@ng-model="activationKey.max_hosts"]')
         host_limit_save_btn = Text(
-            locator='//dd[contains(@bst-edit-custom, "activationKey.max_hosts")]//button[@ng-click="save()"]'
+            locator='.//dd[contains(@bst-edit-custom, "activationKey.max_hosts")]//button[@ng-click="save()"]'
         )
         host_limit_cancel_btn = Text(
-            locator='//dd[contains(@bst-edit-custom, "activationKey.max_hosts")]//button[@ng-click="cancel()"]'
+            locator='.//dd[contains(@bst-edit-custom, "activationKey.max_hosts")]//button[@ng-click="cancel()"]'
         )
 
         service_level = EditableEntrySelect(name='Service Level')
@@ -119,13 +119,13 @@ class ActivationKeyEditView(BaseLoggedInView):
     class repository_sets(SatTab, SearchableViewMixin):
         TAB_NAME = 'Repository Sets'
         repo_type = Select(locator='.//select[@id="repositoryTypes"]')
-        actions = ActionsDropdown('//div[contains(@class, "btn-group ng-scope")]/div')
+        actions = ActionsDropdown('.//div[contains(@class, "btn-group ng-scope")]/div')
         table = Table(locator='.//table')
         repository_name = Text(
-            locator='//table[@class="table table-bordered table-striped"]/tbody/tr//td[2]'
+            locator='.//table[@class="table table-bordered table-striped"]/tbody/tr//td[2]'
         )
         check_box = Checkbox(
-            locator='//table[@class="table table-bordered table-striped"]/tbody/tr//td[1]'
+            locator='.//table[@class="table table-bordered table-striped"]/tbody/tr//td[1]'
         )
 
     @View.nested

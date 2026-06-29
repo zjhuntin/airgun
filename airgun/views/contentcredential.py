@@ -1,6 +1,6 @@
 from widgetastic.utils import ParametrizedLocator
 from widgetastic.widget import Text, View
-from widgetastic_patternfly import Tab
+from widgetastic_patternfly5 import Tab
 from widgetastic_patternfly5.ouia import (
     BreadCrumb as PF5OUIABreadCrumb,
     Button as PF5OUIAButton,
@@ -17,7 +17,7 @@ from airgun.widgets import PF5SpacedListItem
 class ContentCredentialsTableView(BaseLoggedInView, SearchableViewMixinPF4):
     """PF5 list page for Content Credentials at /labs/content_credentials."""
 
-    title = Text('//h1[normalize-space(.)="Content Credentials"]')
+    title = Text('.//h1[normalize-space(.)="Content Credentials"]')
     table = PF5OUIATable(
         component_id='content-credentials-table',
         column_widgets={
@@ -64,7 +64,7 @@ class ContentCredentialEditView(BaseLoggedInView):
 
     @View.nested
     class details(Tab):
-        TAB_LOCATOR = ParametrizedLocator('//*[@data-ouia-component-id="routed-tabs-tab-details"]')
+        TAB_LOCATOR = ParametrizedLocator('.//*[@data-ouia-component-id="routed-tabs-tab-details"]')
 
         name = PF5SpacedListItem(label='Name')
         content_type = PF5SpacedListItem(label='Type')
@@ -76,7 +76,9 @@ class ContentCredentialEditView(BaseLoggedInView):
 
     @View.nested
     class products(Tab):
-        TAB_LOCATOR = ParametrizedLocator('//*[@data-ouia-component-id="routed-tabs-tab-products"]')
+        TAB_LOCATOR = ParametrizedLocator(
+            './/*[@data-ouia-component-id="routed-tabs-tab-products"]'
+        )
 
         empty_state = Text(
             './/div[@data-ouia-component-id="products-empty-state-card"]'
@@ -91,7 +93,7 @@ class ContentCredentialEditView(BaseLoggedInView):
     @View.nested
     class repositories(Tab):
         TAB_LOCATOR = ParametrizedLocator(
-            '//*[@data-ouia-component-id="routed-tabs-tab-repositories"]'
+            './/*[@data-ouia-component-id="routed-tabs-tab-repositories"]'
         )
 
         empty_state = Text(
@@ -104,7 +106,7 @@ class ContentCredentialEditView(BaseLoggedInView):
     @View.nested
     class alternate_content_sources(Tab):
         TAB_LOCATOR = ParametrizedLocator(
-            '//*[@data-ouia-component-id="routed-tabs-tab-alternate_content_sources"]'
+            './/*[@data-ouia-component-id="routed-tabs-tab-alternate_content_sources"]'
         )
 
         empty_state = Text(

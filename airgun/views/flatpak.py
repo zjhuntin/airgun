@@ -21,10 +21,10 @@ from airgun.widgets import PF4Search, SearchInput
 class FlatpakRemotesView(BaseLoggedInView, SearchableViewMixinPF4):
     """View for the Flatpak Remotes page"""
 
-    title = Text("//h1[normalize-space(.)='Flatpak Remotes']")
+    title = Text(".//h1[normalize-space(.)='Flatpak Remotes']")
 
-    table_loading = Text("//h5[normalize-space(.)='Loading']")
-    no_results = Text("//h5[normalize-space(.)='No Results']")
+    table_loading = Text(".//h5[normalize-space(.)='Loading']")
+    no_results = Text(".//h5[normalize-space(.)='No Results']")
 
     create_new_btn = PF5Button('Create new')
 
@@ -66,7 +66,7 @@ class FlatpakRemoteDetailsView(BaseLoggedInView, SearchableViewMixinPF4):
             'Mirror': PF5Button('Mirror'),
         },
     )
-    pagination = Pagination("//div[@class = 'pf-v5-c-pagination pf-m-bottom tfm-pagination']")
+    pagination = Pagination(".//div[@class = 'pf-v5-c-pagination pf-m-bottom tfm-pagination']")
 
     @property
     def is_displayed(self):
@@ -78,7 +78,7 @@ class CreateFlatpakRemoteModal(PF5Modal):
 
     ROOT = './/div[@data-ouia-component-id="create-flatpak-modal"]'
 
-    title = Text("//span[normalize-space(.)='Create Flatpak remote']")
+    title = Text(".//span[normalize-space(.)='Create Flatpak remote']")
 
     info_alert = PF5Alert(locator='.//div[@data-ouia-component-id="flatpak-remote-info-alert"]')
     add_rh_fr = PF5Button('Add Red Hat flatpak remote')
@@ -101,7 +101,7 @@ class EditFlatpakRemoteModal(PF5Modal):
 
     ROOT = './/div[@data-ouia-component-id="edit-flatpak-modal"]'
 
-    title = Text("//span[normalize-space(.)='Edit Flatpak remote']")
+    title = Text(".//span[normalize-space(.)='Edit Flatpak remote']")
 
     name = PF5OUIATextInput('input_name')
     url = PF5OUIATextInput('input_url')
@@ -121,7 +121,7 @@ class MirrorFlatpakRemoteModal(PF5Modal, SearchableViewMixinPF4):
 
     ROOT = './/div[@data-ouia-component-id="mirror-repo-modal"]'
 
-    title = Text("//span[normalize-space(.)='Mirror Repository']")
+    title = Text(".//span[normalize-space(.)='Mirror Repository']")
 
     searchbar = SearchInput(
         locator='.//input[contains(@class, "pf-v5-c-text-input-group__text-input")]'
@@ -163,7 +163,7 @@ class FlatpakRemoteDeleteModal(PF5Modal):
 
     ROOT = './/div[@data-ouia-component-id="flatpak-delete-modal"]'
 
-    title = Text("//span[normalize-space(.)='Delete Flatpak remote?']")
+    title = Text(".//span[normalize-space(.)='Delete Flatpak remote?']")
 
     delete_btn = PF5Button('Delete')
     cancel_btn = PF5Button('Cancel')

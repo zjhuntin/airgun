@@ -1,13 +1,13 @@
 from widgetastic.widget import FileInput, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SatTab, SearchableViewMixinPF4
 from airgun.widgets import ActionsDropdown, MultiSelect, SatTable
 
 
 class SCAPContentsView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='SCAP Contents']")
-    new = Text("//a[contains(@href, 'scap_contents/new')]")
+    title = Text(".//h1[normalize-space(.)='SCAP Contents']")
+    new = Text(".//a[contains(@href, 'scap_contents/new')]")
     table = SatTable(
         './/table',
         column_widgets={
@@ -22,9 +22,9 @@ class SCAPContentsView(BaseLoggedInView, SearchableViewMixinPF4):
 
 
 class SCAPContentCreateView(BaseLoggedInView):
-    create_form = Text("//form[@id='new_scap_content']")
-    submit = Text('//input[@name="commit"]')
-    cancel = Text('//a[normalize-space(.)="Cancel"]')
+    create_form = Text(".//form[@id='new_scap_content']")
+    submit = Text('.//input[@name="commit"]')
+    cancel = Text('.//a[normalize-space(.)="Cancel"]')
 
     @View.nested
     class file_upload(SatTab):
@@ -46,14 +46,14 @@ class SCAPContentCreateView(BaseLoggedInView):
 
 
 class SCAPContentEditView(SCAPContentCreateView):
-    scap_file_name = Text('//div[@class="col-md-4"]/b')
+    scap_file_name = Text('.//div[@class="col-md-4"]/b')
     breadcrumb = BreadCrumb()
 
     @View.nested
     class file_upload(SatTab):
         TAB_NAME = 'File Upload'
         title = TextInput(id='scap_content_title')
-        uploaded_scap_file = Text(locator="//label[@for='scap_file']/following-sibling::div/b")
+        uploaded_scap_file = Text(locator=".//label[@for='scap_file']/following-sibling::div/b")
         scap_file = FileInput(id='scap_content_scap_file')
 
     @property

@@ -1,4 +1,5 @@
-from selenium.common.exceptions import ElementNotInteractableException
+from playwright.sync_api import Error as PlaywrightError
+from wait_for import wait_for
 from widgetastic.widget import (
     Checkbox,
     ConditionalSwitchableView,
@@ -10,10 +11,7 @@ from widgetastic.widget import (
     WTMixin,
     do_not_read_this_widget,
 )
-from widgetastic_patternfly import BreadCrumb, Tab, TabWithDropdown
-from widgetastic_patternfly4 import Button
-from widgetastic_patternfly4.navigation import Navigation
-from widgetastic_patternfly5 import Dropdown as PF5Dropdown
+from widgetastic_patternfly5 import BreadCrumb, Button, Dropdown as PF5Dropdown, Navigation, Tab
 from widgetastic_patternfly5.ouia import (
     Dropdown as PF5OUIADropdown,
     PatternflyTable,
@@ -43,6 +41,30 @@ from airgun.widgets import (
 )
 
 
+class TabWithDropdown(Tab):
+    """Minimal TabWithDropdown (replaces widgetastic_patternfly PF3 version).
+
+    PF5 Tab with dropdown sub-item support. Subclasses should set
+    TAB_NAME and SUB_ITEM class attributes.
+
+    Uses Rails-style nav-tabs locator to match Satellite's legacy pages.
+    """
+
+    SUB_ITEM = None
+
+    TAB_LOCATOR = ParametrizedLocator(
+        './/ul[contains(@class, "nav-tabs")]/li[./a[normalize-space(.)={@tab_name|quote}]]'
+    )
+
+    def select(self):
+        super().select()
+        if self.SUB_ITEM:
+            self.browser.click(
+                f'.//a[normalize-space(.)="{self.SUB_ITEM}"]',
+                parent=self.TAB_LOCATOR,
+            )
+
+
 class BaseLoggedInView(View):
     """Base view for Satellite pages"""
 
@@ -52,13 +74,13 @@ class BaseLoggedInView(View):
     flash = SatFlashMessages()
     validations = ValidationErrors()
     dialog = ConfirmationDialog()
-    logout = Text("//a[@href='/users/logout']")
+    logout = Text(".//a[@href='/users/logout']")
     current_user = PF5OUIADropdown('user-info-dropdown')
     account_menu = PF5OUIADropdown('user-info-dropdown')
     permission_denied = Text(
-        '//*[@id="content" or contains(@class, "pf-v5-c-empty-state pf-m-xl")]'
+        './/*[@id="content" or contains(@class, "pf-v5-c-empty-state pf-m-xl")]'
     )
-    product = Text('//span[@class="navbar-brand-txt"]/span')
+    product = Text('.//span[@class="navbar-brand-txt"]/span')
 
     def select_logout(self):
         """logout from satellite"""
@@ -92,7 +114,7 @@ class BaseLoggedInView(View):
     def documentation_links(self):
         """Return Documentation links present on the given page if any."""
         doc_link_elements = (
-            '//a[contains(text(), "documentation") or contains(text(), "Documentation") or '
+            './/a[contains(text(), "documentation") or contains(text(), "Documentation") or '
             'contains(@class, "btn-docs") or contains(@href, "console.redhat.com") or '
             'contains(@href, "access.redhat.com") or contains(@href, "docs.redhat.com") or '
             'contains(@href, "www.redhat.com") or contains(@href, "links") or '
@@ -105,15 +127,18 @@ class BaseLoggedInView(View):
                 item.click()
                 if len(self.browser.window_handles) == 1:
                     doc_links.extend([self.browser.url])
-                    self.browser.selenium.back()
+                    self.browser.page.go_back()
                 else:
                     self.browser.switch_to_window(self.browser.window_handles[1])
                     doc_links.extend([self.browser.url])
                     self.browser.switch_to_window(self.browser.window_handles[0])
                     self.browser.close_window(self.browser.window_handles[1])
-            except ElementNotInteractableException:
-                # Some links are hidden so we can't click them directly. Instead we open the hyperlink and save target url
-                new_handle = self.browser.new_window(item.get_attribute('href'), focus=True)
+            except PlaywrightError:
+                # Some links are hidden so we can't click them directly.
+                href = item.get_attribute('href') or ''
+                if href and not href.startswith(('http://', 'https://')):
+                    href = f'{self.browser.url.rstrip("/")}{href}'
+                new_handle = self.browser.new_window(href, focus=True)
                 doc_links.extend([self.browser.url])
                 self.browser.switch_to_window(self.browser.window_handles[0])
                 self.browser.close_window(new_handle)
@@ -141,10 +166,10 @@ class WrongContextAlert(View):
     """
 
     message = Text(
-        "//div[contains(@class, 'alert-warning')]"
+        ".//div[contains(@class, 'alert-warning')]"
         "[span[normalize-space(.)='Please try to update your request']]"
     )
-    back = Button(href='/')
+    back = Button(locator=".//a[@href='/']")
 
     @property
     def is_displayed(self):
@@ -153,6 +178,9 @@ class WrongContextAlert(View):
 
 class SatTab(Tab):
     """Regular primary level ``Tab``.
+
+    Satellite uses Rails-style nav-tabs on many pages, not PF5 tabs.
+    This overrides TAB_LOCATOR to match the old nav-tabs structure.
 
     Usage::
 
@@ -170,9 +198,25 @@ class SatTab(Tab):
     'Subscriptions'
     """
 
+    TAB_LOCATOR = ParametrizedLocator(
+        './/ul[contains(@class, "nav-tabs")]/li[./a[normalize-space(.)={@tab_name|quote}]]'
+    )
+
     ROOT = ParametrizedLocator(
         './/div[contains(@class, "page-content") or contains(@class, "tab-content")]'
     )
+
+    def click(self):
+        """Click the tab link. Rails tabs use <a> tags, not <button>."""
+        el = self.parent_browser.element(self.TAB_LOCATOR)
+        links = self.browser.elements('.//a', parent=el)
+        if links:
+            return self.browser.click(links[0])
+        return self.parent_browser.click(el)
+
+    def is_active(self):
+        """Rails tabs use 'active' class on the li, not 'pf-m-current'."""
+        return 'active' in self.parent_browser.classes(self.TAB_LOCATOR)
 
     @property
     def is_displayed(self):
@@ -281,7 +325,7 @@ class LCESelectorGroup(ParametrizedView):
         names (last available environment is used as a name). It's required for
         :meth:`read` to work properly.
         """
-        return [(element.text,) for element in browser.elements(cls.LAST_ENV)]
+        return [(browser.text(element),) for element in browser.elements(cls.LAST_ENV)]
 
     def fill(self, values=None):
         """Shortcut to pass the value to included ``lce``
@@ -530,7 +574,7 @@ class NewAddRemoveResourcesView(View):
 
     def read(self):
         """Read all table values from both resource tables"""
-        self.browser.wait_for_element(locator='//h4[text()="Loading"]', exception=False)
+        self.browser.wait_for_element(locator='.//h4[text()="Loading"]', exception=False)
         self.browser.wait_for_element(
             self.table, exception=False, ensure_page_safe=True, timeout=10
         )
@@ -576,12 +620,8 @@ class TemplateEditor(View):
 
     ROOT = ".//div[@id='editor-container']"
     rendering_options = ItemsList(".//div[contains(@class,'navbar-editor')]/ul")
-    import_template = Button(id='import-btn')
+    import_template = Button(locator=".//button[@id='import-btn']")
     fullscreen = Text(locator=".//button[@id='fullscreen-btn']")
-    fullscreen_close = Text(
-        locator="//button[@data-ouia-component-id='editor-modal-component-ModalBoxCloseButton']"
-    )
-    fullscreen_textarea = TextInput(locator="//div[@id='editor']/textarea")
     error = Text(".//div[@id='preview_error_toast']")
     editor = ACEEditor()
 
@@ -589,8 +629,18 @@ class TemplateEditor(View):
         if values.pop('fullscreen', False):
             fullscreen_data = values.pop('editor')
             self.fullscreen.click()
-            self.fullscreen_textarea.fill(fullscreen_data)
-            self.fullscreen_close.click()
+            root = self.root_browser
+            wait_for(
+                lambda: root.elements(".//div[@id='editor']"),
+                timeout=10,
+                delay=0.5,
+                handle_exception=True,
+            )
+            root.execute_script("ace.edit('editor').setValue(arguments[0])", fullscreen_data)
+            root.element(
+                ".//button[@data-ouia-component-id='editor-modal-component-ModalBoxCloseButton']"
+            ).click()
+            self.editor.fill(fullscreen_data)
         super().fill(values)
 
 
@@ -603,7 +653,7 @@ class SearchableViewMixin(WTMixin):
     """
 
     searchbox = Search()
-    welcome_message = Text("//div[@class='blank-slate-pf' or @id='welcome']")
+    welcome_message = Text(".//div[@class='blank-slate-pf' or @id='welcome']")
 
     def is_searchable(self):
         """Verify that search procedure can be executed against specific page.
@@ -646,7 +696,7 @@ class SearchableViewMixinPF4(SearchableViewMixin):
     """
 
     searchbox = PF4Search()
-    blank_page = Text("//div[contains(@class, 'pf-c-empty-state')]")
+    blank_page = Text(".//div[contains(@class, 'pf-c-empty-state')]")
 
     def is_searchable(self):
         """Verify that search procedure can be executed against specific page
@@ -710,7 +760,7 @@ class BookmarkCreateView(BaseLoggedInView):
     ROOT = ".//div[@aria-label='bookmark-modal' or contains(@class, 'modal-dialog')]"
 
     title = Text(
-        "//*[self::div[@data-block='modal-header'] or self::h4]"
+        ".//*[self::div[@data-block='modal-header'] or self::h4]"
         "[normalize-space(.) = 'Add Bookmark'"
         " or normalize-space(.) = 'Create Bookmark']"
     )
@@ -720,7 +770,7 @@ class BookmarkCreateView(BaseLoggedInView):
         ".//span[@class='error-message' or (ancestor::div[contains(@class, 'pf-m-error')] and contains(@class, 'item-text'))]"
     )
     public = Checkbox(
-        locator="//input[@data-ouia-component-id='isPublic-checkbox' or (@type='checkbox' and (@name='public' or @name='publik'))]"
+        locator=".//input[@data-ouia-component-id='isPublic-checkbox' or (@type='checkbox' and (@name='public' or @name='publik'))]"
     )
     submit = Text(
         ".//button[@data-ouia-component-id='submit-btn' or @type='submit' or @ng-click='ok()']"

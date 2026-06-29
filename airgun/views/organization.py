@@ -1,5 +1,5 @@
 from widgetastic.widget import Checkbox, Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SatVerticalTab, SearchableViewMixinPF4
 from airgun.widgets import (
@@ -11,8 +11,8 @@ from airgun.widgets import (
 
 
 class OrganizationsView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Organizations']")
-    new = Text("//a[contains(@href, '/organizations/new')]")
+    title = Text(".//h1[normalize-space(.)='Organizations']")
+    new = Text(".//a[contains(@href, '/organizations/new')]")
     table = Table(
         './/table',
         column_widgets={
@@ -31,7 +31,7 @@ class OrganizationCreateView(BaseLoggedInView):
     name = TextInput(id='organization_name')
     label = TextInput(id='organization_label')
     description = TextInput(id='organization_description')
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):
@@ -45,9 +45,9 @@ class OrganizationCreateView(BaseLoggedInView):
 
 class OrganizationCreateSelectHostsView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    assign_all = Text("//a[normalize-space(.)='Assign All']")
-    assign_manually = Text("//a[normalize-space(.)='Manually Assign']")
-    proceed = Text("//a[normalize-space(.)='Proceed to Edit']")
+    assign_all = Text(".//a[normalize-space(.)='Assign All']")
+    assign_manually = Text(".//a[normalize-space(.)='Manually Assign']")
+    proceed = Text(".//a[normalize-space(.)='Proceed to Edit']")
 
     @property
     def is_displayed(self):
@@ -61,8 +61,8 @@ class OrganizationCreateSelectHostsView(BaseLoggedInView):
 
 class OrganizationEditView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text("//form[contains(@id, 'edit')]//input[@name='commit']")
-    cancel = Text("//a[normalize-space(.)='Cancel']")
+    submit = Text(".//form[contains(@id, 'edit')]//input[@name='commit']")
+    cancel = Text(".//a[normalize-space(.)='Cancel']")
 
     @property
     def is_displayed(self):

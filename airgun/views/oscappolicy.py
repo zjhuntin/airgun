@@ -1,5 +1,5 @@
 from widgetastic.widget import ConditionalSwitchableView, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SatTab, SearchableViewMixin
 from airgun.views.dashboard import ItemValueList, TotalCount
@@ -13,8 +13,8 @@ from airgun.widgets import (
 
 
 class SCAPPoliciesView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h1[normalize-space(.)='Compliance Policies']")
-    new = Text("//a[contains(@href, '/compliance/policies/new')]")
+    title = Text(".//h1[normalize-space(.)='Compliance Policies']")
+    new = Text(".//a[contains(@href, '/compliance/policies/new')]")
     table = SatTable(
         './/table',
         column_widgets={
@@ -77,8 +77,8 @@ class SCAPPolicyCreateView(BaseLoggedInView):
     @View.nested
     class deployment_options(BaseLoggedInView):
         TAB_NAME = 'Deployment Options'
-        next_step = Text("//input[contains(@value, 'Next')]")
-        deploy_by = ScapPolicyRadioGroup("//div[contains(@id, 'deploy_by')]")
+        next_step = Text(".//input[contains(@value, 'Next')]")
+        deploy_by = ScapPolicyRadioGroup(".//div[contains(@id, 'deploy_by')]")
 
         def after_fill(self, was_change):
             self.next_step.click()
@@ -86,7 +86,7 @@ class SCAPPolicyCreateView(BaseLoggedInView):
     @View.nested
     class policy_attributes(BaseLoggedInView):
         TAB_NAME = 'Policy Attributes'
-        next_step = Text("//input[contains(@value, 'Next')]")
+        next_step = Text(".//input[contains(@value, 'Next')]")
         name = TextInput(id='policy_name')
         description = TextInput(id='policy_description')
 
@@ -96,7 +96,7 @@ class SCAPPolicyCreateView(BaseLoggedInView):
     @View.nested
     class scap_content(BaseLoggedInView):
         TAB_NAME = 'SCAP Content'
-        next_step = Text("//input[contains(@value, 'Next')]")
+        next_step = Text(".//input[contains(@value, 'Next')]")
         scap_content_resource = FilteredDropdown(id='policy_scap_content_id')
         xccdf_profile = FilteredDropdown(id='policy_scap_content_profile_id')
         tailoring_file = FilteredDropdown(id='policy_tailoring_file_id')
@@ -107,7 +107,7 @@ class SCAPPolicyCreateView(BaseLoggedInView):
 
     @View.nested
     class schedule(BaseLoggedInView):
-        next_step = Text("//input[contains(@value, 'Next')]")
+        next_step = Text(".//input[contains(@value, 'Next')]")
         period = FilteredDropdown(id='policy_period')
         period_selection = ConditionalSwitchableView(reference='period')
 
@@ -128,7 +128,7 @@ class SCAPPolicyCreateView(BaseLoggedInView):
 
     @View.nested
     class locations(BaseLoggedInView):
-        next_step = Text("//input[contains(@value, 'Next')]")
+        next_step = Text(".//input[contains(@value, 'Next')]")
         resources = MultiSelect(id='ms-policy_location_ids')
 
         def after_fill(self, was_change):
@@ -136,7 +136,7 @@ class SCAPPolicyCreateView(BaseLoggedInView):
 
     @View.nested
     class organizations(BaseLoggedInView):
-        next_step = Text("//input[contains(@value, 'Next')]")
+        next_step = Text(".//input[contains(@value, 'Next')]")
         resources = MultiSelect(id='ms-policy_organization_ids')
 
         def after_fill(self, was_change):
@@ -145,13 +145,13 @@ class SCAPPolicyCreateView(BaseLoggedInView):
     @View.nested
     class host_group(BaseLoggedInView):
         TAB_NAME = 'Host Groups'
-        submit = Text('//input[@name="commit"]')
+        submit = Text('.//input[@name="commit"]')
         resources = MultiSelect(id='ms-policy_hostgroup_ids')
 
 
 class SCAPPolicyEditView(BaseLoggedInView):
-    submit = Text('//input[@name="commit"]')
-    cancel = Text("//a[normalize-space(.)='Cancel']")
+    submit = Text('.//input[@name="commit"]')
+    cancel = Text(".//a[normalize-space(.)='Cancel']")
     breadcrumb = BreadCrumb()
 
     @property
@@ -165,13 +165,13 @@ class SCAPPolicyEditView(BaseLoggedInView):
 
     @View.nested
     class deployment_options(BaseLoggedInView):
-        next_step = Text("//input[contains(@value, 'Next')]")
-        deploy_by = ScapPolicyRadioGroup("//div[contains(@id, 'deployment')]")
+        next_step = Text(".//input[contains(@value, 'Next')]")
+        deploy_by = ScapPolicyRadioGroup(".//div[contains(@id, 'deployment')]")
 
     @View.nested
     class general(SatTab):
         name = TextInput(id='policy_name')
-        description = Text('//textarea[@id="policy_description"]')
+        description = Text('.//textarea[@id="policy_description"]')
 
     @View.nested
     class scap_content(SatTab):
@@ -231,4 +231,4 @@ class SCAPPolicyDetailsView(BaseLoggedInView):
         Details View
         """
 
-        hosts_breakdown = Text("//div[@id='policy-breakdown-chart']")
+        hosts_breakdown = Text(".//div[@id='policy-breakdown-chart']")

@@ -1,5 +1,5 @@
 from widgetastic.widget import Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SatTab, SearchableViewMixinPF4
 from airgun.widgets import CustomParameter, FilteredDropdown, MultiSelect
@@ -8,8 +8,8 @@ from airgun.widgets import CustomParameter, FilteredDropdown, MultiSelect
 class DomainListView(BaseLoggedInView, SearchableViewMixinPF4):
     """List of all domains."""
 
-    title = Text('//*[(self::h1 or self::h5) and normalize-space(.)="Domains"]')
-    new = Text('//a[normalize-space(.)="Create Domain"]')
+    title = Text('.//*[(self::h1 or self::h5) and normalize-space(.)="Domains"]')
+    new = Text('.//a[normalize-space(.)="Create Domain"]')
     table = Table(
         './/table',
         column_widgets={

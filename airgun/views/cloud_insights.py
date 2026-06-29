@@ -23,7 +23,7 @@ from airgun.views.common import BaseLoggedInView, SearchableViewMixinPF4, TableR
 class CloudTokenView(BaseLoggedInView):
     """Red Hat Lightspeed Landing page for adding RH Cloud Token."""
 
-    rhcloud_token = TextInput(locator='//input[contains(@aria-label, "input-cloud-token")]')
+    rhcloud_token = TextInput(locator='.//input[contains(@aria-label, "input-cloud-token")]')
     save_token = PF5Button('Save setting and sync recommendations')
 
     @property
@@ -55,7 +55,7 @@ class RemediationView(PF5OUIAModal):
 class CloudInsightsView(BaseLoggedInView, SearchableViewMixinPF4):
     """Main Red Hat Lightspeed view."""
 
-    title = Text('//h1[normalize-space(.)="Red Hat Lightspeed"]')
+    title = Text('.//h1[normalize-space(.)="Red Hat Lightspeed"]')
     insights_sync_switcher = PF5OUIASwitch('foreman-rh-cloud-switcher')
     remediate = PF5Button('Remediate')
     insights_dropdown = PF5OUIADropdown('title-dropdown')
@@ -98,7 +98,7 @@ class BulkSelectMenuToggle(PF5Menu):
     ROOT = f'{BUTTON_LOCATOR}/..'
     ITEMS_LOCATOR = './/ul[contains(@class, "pf-v5-c-menu__list")]/li'
     ITEM_LOCATOR = (
-        '//*[contains(@class, "pf-v5-c-menu__item") and .//*[contains(normalize-space(.), {})]]'
+        './/*[contains(@class, "pf-v5-c-menu__item") and .//*[contains(normalize-space(.), {})]]'
     )
     # Checkbox element within the menu toggle
     checkbox = Checkbox(locator='.//input[@data-ouia-component-id="BulkSelectCheckbox"]')
@@ -131,7 +131,7 @@ class MenuToggleSelectParamLocator(PF5Select):
     ROOT = ParametrizedLocator('{@locator}/..')
     ITEMS_LOCATOR = ".//ul[contains(@class, 'pf-v5-c-menu__list')]/li"
     ITEM_LOCATOR = (
-        "//*[contains(@class, 'pf-v5-c-menu__item') and .//*[contains(normalize-space(.), {})]]"
+        ".//*[contains(@class, 'pf-v5-c-menu__item') and .//*[contains(normalize-space(.), {})]]"
     )
 
 

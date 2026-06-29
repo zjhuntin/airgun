@@ -6,7 +6,7 @@ from widgetastic.widget import (
     TextInput,
     View,
 )
-from widgetastic_patternfly import BreadCrumb, Button
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import (
     BaseLoggedInView,
@@ -24,8 +24,8 @@ from airgun.widgets import (
 
 
 class PartitionTablesView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[text()='Partition Tables']")
-    new = Button('Create Partition Table')
+    title = Text(".//h1[text()='Partition Tables']")
+    new = Text(".//a[contains(@href, '/ptables/new')]")
     table = Table(
         './/table',
         column_widgets={
@@ -41,13 +41,13 @@ class PartitionTablesView(BaseLoggedInView, SearchableViewMixinPF4):
 
 class PartitionTableEditView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @View.nested
     class template(SatTab):
         name = TextInput(id='ptable_name')
         default = Checkbox(id='ptable_default')
-        snippet = Checkbox(locator="//input[@id='ptable_snippet']")
+        snippet = Checkbox(locator=".//input[@id='ptable_snippet']")
         os_family_selection = ConditionalSwitchableView(reference='snippet')
 
         @os_family_selection.register(True)

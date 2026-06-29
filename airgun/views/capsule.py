@@ -6,19 +6,16 @@ from widgetastic.widget import (
     TextInput,
     View,
 )
-from widgetastic_patternfly import BreadCrumb, Button
-from widgetastic_patternfly4 import (
-    Pagination,
-)
-from widgetastic_patternfly4.ouia import (
-    Button as OUIAButton,
-)
 from widgetastic_patternfly5 import (
+    BreadCrumb,
+    Button,
     Button as PF5Button,
     Menu as PF5Menu,
+    Pagination,
     Pagination as PF5Pagination,
 )
 from widgetastic_patternfly5.ouia import (
+    Button as OUIAButton,
     ExpandableTable as PF5ExpandableTable,
 )
 
@@ -46,15 +43,15 @@ class CreateCapsuleView(BaseLoggedInView):
     """Class that describes the Create Capsule page"""
 
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
-    cancel = Text('//a[contains(@href, "smart_proxies")]')
+    submit = Text('.//input[@name="commit"]')
+    cancel = Text('.//a[contains(@href, "smart_proxies")]')
 
     @View.nested
     class capsule(SatTab):
-        name = TextInput(locator='//input[@id="smart_proxy_name"]')
-        url = TextInput(locator='//input[@id="smart_proxy_url"]')
+        name = TextInput(locator='.//input[@id="smart_proxy_name"]')
+        url = TextInput(locator='.//input[@id="smart_proxy_url"]')
         acs_http_proxy = FilteredDropdown(id='smart_proxy_http_proxy_id')
-        remove_proxy_selection = Text(locator='//*[@id="smart_proxy_http_proxy_id"]/a/abbr')
+        remove_proxy_selection = Text(locator='.//*[@id="smart_proxy_http_proxy_id"]/a/abbr')
 
     @View.nested
     class locations(SatTab):
@@ -72,11 +69,11 @@ class CreateCapsuleView(BaseLoggedInView):
 class EditCapsuleView(CreateCapsuleView):
     @View.nested
     class capsule(SatTab):
-        name = TextInput(locator='//input[@id="smart_proxy_name"]')
-        url = TextInput(locator='//input[@id="smart_proxy_url"]')
+        name = TextInput(locator='.//input[@id="smart_proxy_name"]')
+        url = TextInput(locator='.//input[@id="smart_proxy_url"]')
         download_policy = FilteredDropdown(id='smart_proxy_download_policy')
         acs_http_proxy = FilteredDropdown(id='smart_proxy_http_proxy_id')
-        remove_proxy_selection = Text(locator='//*[@id="smart_proxy_http_proxy_id"]/a/abbr')
+        remove_proxy_selection = Text(locator='.//*[@id="smart_proxy_http_proxy_id"]/a/abbr')
 
     @View.nested
     class lifecycle_enviroments(SatTab):
@@ -90,78 +87,78 @@ class CapsuleDetailsView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
 
     actions = ActionsDropdown('./div[a[contains(@data-toggle, "dropdown")]]')
-    edit_capsule = Text('//a[normalize-space(.)="Edit"]')
-    delete_capsule = Text('//a[normalize-space(.)="Delete"]')
+    edit_capsule = Text('.//a[normalize-space(.)="Edit"]')
+    delete_capsule = Text('.//a[normalize-space(.)="Delete"]')
 
-    success_message = Text('//div[contains(@aria-label, "Success Alert")]')
-    error_message = Text('//div[contains(@aria-label, "Danger Alert")]')
+    success_message = Text('.//div[contains(@aria-label, "Success Alert")]')
+    error_message = Text('.//div[contains(@aria-label, "Danger Alert")]')
     confirm_deletion = DeleteCapsuleConfirmationDialog()
 
     @View.nested
     class overview(SatTab):
         TAB_NAME = 'Overview'
 
-        reclaim_space_button = Button('Reclaim Space')
+        reclaim_space_button = Button(locator=".//button[normalize-space(.)='Reclaim Space']")
         reclaim_space_warning = Text('.//div[@id="properties"]/div/div/p[contains(., "Warning")]')
 
         url = Text('.//div[preceding-sibling::div[contains(., "URL")]]')
         version = Text('.//span[@class="proxy-version"]')
         active_features = Text('.//div[contains(., "Active features")]/ancestor::div[@class="row"]')
-        refresh_features = Button('Refresh features')
+        refresh_features = Button(locator=".//button[normalize-space(.)='Refresh features']")
         hosts_managed = Text('.//div[preceding-sibling::div[contains(., "Hosts managed")]]')
-        failed_fetaures_info = Text('//div[@id="failed-modules"]')
+        failed_fetaures_info = Text('.//div[@id="failed-modules"]')
         log_messages_info = Text(
-            '//a[contains(@href, "#logs") and contains(@data-toggle, "tooltip")][1]'
+            './/a[contains(@href, "#logs") and contains(@data-toggle, "tooltip")][1]'
         )
         error_messages_info = Text(
-            '//a[contains(@data-original-title, "error") or contains(@title, "error")]'
+            './/a[contains(@data-original-title, "error") or contains(@title, "error")]'
         )
-        active_features_info = Text('//h2[contains(@data-toggle, "tooltip")]')
+        active_features_info = Text('.//h2[contains(@data-toggle, "tooltip")]')
 
         last_sync = Text('.//div[span[contains(text(), "Last sync:")]]')
         synchronize_action_drop = ActionsDropdown(
-            '//div[contains(@class, "dropdown") and .//button[normalize-space(.)="Synchronize"]]'
+            './/div[contains(@class, "dropdown") and .//button[normalize-space(.)="Synchronize"]]'
         )
-        storage_info = Text('//div[contains(@class, "progress-bar")]/span[1]')
+        storage_info = Text('.//div[contains(@class, "progress-bar")]/span[1]')
 
     @View.nested
     class services(SatTab):
         TAB_NAME = 'Services'
         container_gateway_version = Text(
-            '//div[contains(., "Container_Gateway")]/following-sibling::div[contains(., "Version")]/div[@class="col-md-8"][1]'
+            './/div[contains(., "Container_Gateway")]/following-sibling::div[contains(., "Version")]/div[@class="col-md-8"][1]'
         )
 
         dynflow_version = Text(
-            '//div[contains(., "Dynflow")]/following-sibling::div[contains(., "Version")]/div[@class="col-md-8"][1]'
+            './/div[contains(., "Dynflow")]/following-sibling::div[contains(., "Version")]/div[@class="col-md-8"][1]'
         )
 
         content_version = Text(
-            '//div[contains(., "Content")]/following-sibling::div[contains(., "Version")]/div[@class="col-md-8"][1]'
+            './/div[contains(., "Content")]/following-sibling::div[contains(., "Version")]/div[@class="col-md-8"][1]'
         )
         content_supportted_content_types = Text(
-            '//div[contains(., "Content")]/div[@class="col-md-8"]/ul'
+            './/div[contains(., "Content")]/div[@class="col-md-8"]/ul'
         )
 
         registration_version = Text(
-            '//div[contains(., "Registration")]/following-sibling::div[contains(., "Version")]/div[@class="col-md-8"][1]'
+            './/div[contains(., "Registration")]/following-sibling::div[contains(., "Version")]/div[@class="col-md-8"][1]'
         )
 
         script_version = Text(
-            '//div[contains(., "Script")]/following-sibling::div[contains(., "Version")]/div[@class="col-md-8"][1]'
+            './/div[contains(., "Script")]/following-sibling::div[contains(., "Version")]/div[@class="col-md-8"][1]'
         )
 
         templates_version = Text(
-            '//div[contains(., "Templates")]/following-sibling::div[contains(., "Version")]/div[@class="col-md-8"][1]'
+            './/div[contains(., "Templates")]/following-sibling::div[contains(., "Version")]/div[@class="col-md-8"][1]'
         )
 
     @View.nested
     class logs(SatTab):
         TAB_NAME = 'Logs'
 
-        search_bar = TextInput(locator='//input[@aria-controls="table-proxy-status-logs"]')
-        filter_by_level = Select(locator='//select[@id="logs-filter"]')
+        search_bar = TextInput(locator='.//input[@aria-controls="table-proxy-status-logs"]')
+        filter_by_level = Select(locator='.//select[@id="logs-filter"]')
         refresh_button = Text(
-            locator='//a[normalize-space(.)="Refresh" and contains(@data-url,"expire_logs")]'
+            locator='.//a[normalize-space(.)="Refresh" and contains(@data-url,"expire_logs")]'
         )
 
         table = SatTable(
@@ -256,11 +253,11 @@ class CapsuleDetailsView(BaseLoggedInView):
 class CapsulesView(BaseLoggedInView, SearchableViewMixinPF4):
     """Class that describes the Capsule Details page"""
 
-    title = Text('//h1[normalize-space(.)="Capsules"]')
-    create_capsule = Text('//a[contains(@class, "btn")][contains(@href, "smart_proxies/new")]')
-    documentation = Text('//a[contains(@class, "btn")][contains(@href, "manual")]')
-    success_message = Text('//div[contains(@aria-label, "Success Alert")]')
-    error_message = Text('//div[contains(@aria-label, "Danger Alert")]')
+    title = Text('.//h1[normalize-space(.)="Capsules"]')
+    create_capsule = Text('.//a[contains(@class, "btn")][contains(@href, "smart_proxies/new")]')
+    documentation = Text('.//a[contains(@class, "btn")][contains(@href, "manual")]')
+    success_message = Text('.//div[contains(@aria-label, "Success Alert")]')
+    error_message = Text('.//div[contains(@aria-label, "Danger Alert")]')
     confirm_deletion = DeleteCapsuleConfirmationDialog()
 
     table = SatTable(

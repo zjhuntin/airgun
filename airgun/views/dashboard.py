@@ -54,7 +54,7 @@ class TotalCount(Widget):
 class AutoRefresh(Widget):
     """Widget refer to auto refresh functionality on dashboard"""
 
-    AUTO_REFRESH = "//a[contains(@href, '/?auto_refresh')]"
+    AUTO_REFRESH = ".//a[contains(@href, '/?auto_refresh')]"
 
     def read(self):
         """Return whether functionality is enabled or disabled"""
@@ -72,8 +72,8 @@ class AutoRefresh(Widget):
 
 
 class DashboardView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Overview']")
-    manage = ActionsDropdown("//div[@class='btn-group']")
+    title = Text(".//h1[normalize-space(.)='Overview']")
+    manage = ActionsDropdown(".//div[@class='btn-group']")
     refresh = AutoRefresh()
 
     @property
@@ -142,7 +142,7 @@ class DashboardView(BaseLoggedInView, SearchableViewMixinPF4):
 
         # Absolute XPath to find all origin-specific charts from page root
         # (ROOT resolves to one <li> and can't contain sibling <li> elements)
-        ALL_CHARTS = "//li[contains(@data-name, 'Run Distribution Chart')]"
+        ALL_CHARTS = ".//li[contains(@data-name, 'Run Distribution Chart')]"
 
         def read(self):
             self.browser.plugin.ensure_page_safe()
@@ -153,7 +153,7 @@ class DashboardView(BaseLoggedInView, SearchableViewMixinPF4):
                 )
                 origin_chart = BarChart(
                     self,
-                    f"//li[@data-name='Run Distribution Chart for {origin}']"
+                    f".//li[@data-name='Run Distribution Chart for {origin}']"
                     "//div[contains(@class, 'run-distribution-chart')]",
                 )
                 results[origin] = origin_chart.read()

@@ -1,7 +1,6 @@
 from wait_for import wait_for
 from widgetastic.widget import Table, Text, View
-from widgetastic_patternfly import BreadCrumb, Button
-from widgetastic_patternfly5 import Pagination as PF5Pagination, Tab as PF5Tab
+from widgetastic_patternfly5 import BreadCrumb, Button, Pagination as PF5Pagination, Tab as PF5Tab
 
 from airgun.views.common import BaseLoggedInView, SearchableViewMixinPF4
 from airgun.widgets import (
@@ -14,25 +13,25 @@ from airgun.widgets import (
 
 CARD_TITLE = ".//div[contains(@class, 'pf-v5-c-card__title')]"
 TASKS_PAGINATION_LOCATOR = (
-    "//div[contains(@class, 'pf-v5-c-pagination') and contains(@class, 'pf-m-bottom')"
+    ".//div[contains(@class, 'pf-v5-c-pagination') and contains(@class, 'pf-m-bottom')"
     " and contains(@class, 'tfm-pagination')]"
 )
 
 
 class TaskReadOnlyEntry(ReadOnlyEntry):
     BASE_LOCATOR = (
-        "//span[contains(., '{}') and contains(@class, 'list-group-item-heading')]//parent::div"
+        ".//span[contains(., '{}') and contains(@class, 'list-group-item-heading')]//parent::div"
         '/following-sibling::div/span'
     )
 
 
 class TaskReadOnlyEntryError(ReadOnlyEntry):
-    BASE_LOCATOR = "//span[contains(., '{}')]//parent::div/following-sibling::pre"
+    BASE_LOCATOR = ".//span[contains(., '{}')]//parent::div/following-sibling::pre"
 
 
 class TasksView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Tasks']")
-    focus = ActionsDropdown("//div[./button[@id='tasks-dashboard-time-period-dropdown']]")
+    title = Text(".//h1[normalize-space(.)='Tasks']")
+    focus = ActionsDropdown(".//div[./button[@id='tasks-dashboard-time-period-dropdown']]")
     table = SatTable(
         ".//table[@data-ouia-component-id='table']",
         column_widgets={
@@ -99,8 +98,8 @@ class TaskDetailsView(BaseLoggedInView):
         started_at = TaskReadOnlyEntry(name='Started at')
         ended_at = TaskReadOnlyEntry(name='Ended at')
         start_before = TaskReadOnlyEntry(name='Start before')
-        state = Text("//div[contains(@class, 'progress-description')]")
-        progressbar = ProgressBar(locator='//div[contains(@class,"progress__bar")]')
+        state = Text(".//div[contains(@class, 'progress-description')]")
+        progressbar = ProgressBar(locator='.//div[contains(@class,"progress__bar")]')
         output = TaskReadOnlyEntry(name='Output')
         errors = TaskReadOnlyEntryError(name='Errors')
         dynflow_console = Button('Dynflow console')

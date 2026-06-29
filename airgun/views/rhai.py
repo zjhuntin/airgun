@@ -1,6 +1,6 @@
 from widgetastic.utils import ParametrizedLocator
 from widgetastic.widget import Checkbox, ParametrizedView, Table, Text, TextInput, View
-from widgetastic_patternfly import Button
+from widgetastic_patternfly5 import Button
 
 from airgun.views.common import BaseLoggedInView
 from airgun.widgets import (
@@ -16,8 +16,8 @@ class InsightsOrganizationErrorView(BaseLoggedInView):
     manifest
     """
 
-    title = Text("//article[@id='content']/section/h1")
-    message = Text("//article[@id='content']/section/p")
+    title = Text(".//article[@id='content']/section/h1")
+    message = Text(".//article[@id='content']/section/p")
 
     @property
     def is_displayed(self):
@@ -127,7 +127,7 @@ class AllPlansView(BaseLoggedInView):
         delete = Text(".//i[@tooltip='Delete this plan']")
         edit = Text(".//i[@tooltip='Click to edit this plan']")
         ansible_actions = ActionsDropdown(
-            "//div[contains(@class, 'btn-group')][@ng-if='ansibleRunner']"
+            ".//div[contains(@class, 'btn-group')][@ng-if='ansibleRunner']"
         )
         export_csv = Button('Export CSV')
         add_actions = Button('Add actions')

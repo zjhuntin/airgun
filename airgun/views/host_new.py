@@ -1,8 +1,7 @@
 import time
 
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.by import By
 from wait_for import wait_for
+from widgetastic.exceptions import NoSuchElementException
 from widgetastic.utils import ParametrizedLocator
 from widgetastic.widget import (
     Checkbox,
@@ -14,33 +13,29 @@ from widgetastic.widget import (
 )
 from widgetastic.widget.table import Table
 from widgetastic.xpath import quote
-from widgetastic_patternfly4 import (
-    Button,
-    Dropdown,
-    DualListSelector,
-    Pagination as PF4Pagination,
-    Select,
-)
-from widgetastic_patternfly4.ouia import (
-    Button as OUIAButton,
-    FormSelect as OUIAFormSelect,
-    PatternflyTable,
-)
 from widgetastic_patternfly5 import (
+    Button,
     Button as PF5Button,
     CompactPagination as PF5Pagination,
+    Dropdown,
     Dropdown as PF5Dropdown,
+    DualListSelector,
     ExpandableTable as PF5ExpandableTable,
     Menu as PF5Menu,
     Modal as PF5Modal,
+    Pagination as PF4Pagination,
+    Select,
     Tab as PF5Tab,
 )
 from widgetastic_patternfly5.ouia import (
     Alert as PF5OUIAAlert,
     BreadCrumb,
+    Button as OUIAButton,
     Button as PF5OUIAButton,
     Dropdown as PF5OUIADropdown,
     ExpandableTable as PF5OUIAExpandableTable,
+    FormSelect as OUIAFormSelect,
+    PatternflyTable,
     PatternflyTable as PF5OUIATable,
     Select as PF5OUIASelect,
     Switch as PF5OUIASwitch,
@@ -162,8 +157,8 @@ class CVESelect(Select):
     BUTTON_LOCATOR = './/button[@aria-label="Options menu"]'
     # The dropdown menu is rendered with position:absolute outside the select widget
     # so we need to search from document root (//...) not relative (.//...)
-    ITEMS_LOCATOR = '//ul[contains(@class, "pf-v5-c-select__menu")]/li'
-    ITEM_LOCATOR = '//button[contains(@class, "pf-v5-c-select__menu-item") and contains(normalize-space(.), {})]'
+    ITEMS_LOCATOR = './/ul[contains(@class, "pf-v5-c-select__menu")]/li'
+    ITEM_LOCATOR = './/button[contains(@class, "pf-v5-c-select__menu-item") and contains(normalize-space(.), {})]'
     SELECTED_ITEM_LOCATOR = './/span[contains(@class, "ins-c-conditional-filter")]'
     TEXT_LOCATOR = './/div[contains(@class, "pf-v5-c-select") and child::button]'
     DEFAULT_LOCATOR = './/div[contains(@class, "pf-v5-c-select") and @data-ouia-component-id="select-content-view"]'
@@ -195,15 +190,16 @@ class CVESelect(Select):
             else item
         )
 
-        # Find button with contains() matching on the search text
-        locator = f'//button[contains(@class, "pf-v5-c-select__menu-item") and contains(normalize-space(.), {quote(search_text)})]'
+        locator = f'.//button[contains(@class, "pf-v5-c-select__menu-item") and contains(normalize-space(.), {quote(search_text)})]'
 
         try:
-            elem = self.browser.element(locator)
+            try:
+                elem = self.browser.element(locator)
+            except NoSuchElementException:
+                elem = self.root_browser.element(locator)
             self.browser.click(elem)
             time.sleep(0.5)
         except NoSuchElementException:
-            # If prefix match fails, try parent's method
             self.close()
             return super().item_select(item, **kwargs)
 
@@ -211,8 +207,8 @@ class CVESelect(Select):
 class HostDetailsCard(Widget):
     """Overview/Details & Details/SystemProperties card body contains multiple host detail info"""
 
-    LABELS = '//div[@class="pf-v5-c-description-list__group"]//dt//span'
-    VALUES = '//div[@class="pf-v5-c-description-list__group"]//*[self::dd or self::ul]'
+    LABELS = './/div[@class="pf-v5-c-description-list__group"]//dt//span'
+    VALUES = './/div[@class="pf-v5-c-description-list__group"]//*[self::dd or self::ul]'
 
     def read(self):
         """Return a dictionary where keys are property names and values are property values.
@@ -252,7 +248,7 @@ class HostsView(BaseLoggedInView, SearchableViewMixinPF4):
     to the now-legacy UI page.
     """
 
-    title = Text('//h1[normalize-space(.)="Hosts"]')
+    title = Text('.//h1[normalize-space(.)="Hosts"]')
     actions = PF5OUIADropdown(component_id='legacy-ui-kebab')
     table = PF5OUIATable(
         component_id='hosts-index-table',
@@ -325,11 +321,11 @@ class NewHostDetailsView(BaseLoggedInView):
         return self.breadcrumb.is_displayed and self.breadcrumb.locations[0] == 'Hosts'
 
     edit = PF5OUIAButton('host-edit-button')
-    dropdown = PF5Dropdown(locator='//button[@id="hostdetails-kebab"]/..')
+    dropdown = PF5Dropdown(locator='.//button[@id="hostdetails-kebab"]/..')
     schedule_job = Pf4ActionsDropdown(locator='.//div[div/button[@aria-label="Select"]]')
-    run_job = ActionsDropdown('//button[@data-ouia-component-id="schedule-a-job-dropdown-toggle"]')
+    run_job = ActionsDropdown('.//button[@data-ouia-component-id="schedule-a-job-dropdown-toggle"]')
     select = Text(
-        '//ul[@class="pf-v5-c-dropdown__menu pf-m-align-right"]/li/a/div[normalize-space(text())="Run Ansible roles"]'
+        './/ul[@class="pf-v5-c-dropdown__menu pf-m-align-right"]/li/a/div[normalize-space(text())="Run Ansible roles"]'
     )
 
     @View.nested
@@ -533,7 +529,7 @@ class NewHostDetailsView(BaseLoggedInView):
         @View.nested
         class cloud_billing_details(Card):
             ROOT = (
-                '//div[contains(@data-ouia-component-id, "card-template-GCP") '
+                './/div[contains(@data-ouia-component-id, "card-template-GCP") '
                 'or contains(@data-ouia-component-id, "card-template-AWS") '
                 'or contains(@data-ouia-component-id, "card-template-Azure")]'
             )
@@ -672,7 +668,7 @@ class NewHostDetailsView(BaseLoggedInView):
 
         add_parameter = Button(locator='.//button[text()="Add parameter"]')
         searchbar = SearchInput(
-            locator='//div[@data-ouia-component-id="parameters-table-toolbar"]//input[contains(@class,"pf-v5-c-text-input-group__text-input")]'
+            locator='.//div[@data-ouia-component-id="parameters-table-toolbar"]//input[contains(@class,"pf-v5-c-text-input-group__text-input")]'
         )
         parameter_name_input = TextInput(locator='.//td//input[contains(@aria-label, "name")]')
         parameter_type_input = Select(
@@ -705,7 +701,7 @@ class NewHostDetailsView(BaseLoggedInView):
     class traces(PF5Tab):
         ROOT = './/div'
 
-        title = Text('//h2')
+        title = Text('.//h2')
         enable_traces = PF5OUIAButton('enable-traces-button')
         select_all = Checkbox(locator='.//input[contains(@aria-label, "Select all")]')
         searchbar = SearchInput(locator='.//input[contains(@aria-label, "Select all")]')
@@ -749,9 +745,9 @@ class NewHostDetailsView(BaseLoggedInView):
             TAB_NAME = 'Variables'
             ROOT = './/div[@class="ansible-host-detail"]'
 
-            actions = PF5Button(locator='//button[contains(@aria-label, "Kebab toggle")]')
-            delete = PF5Button(locator='//button[@role="menuitem"]')
-            confirm = PF5Button(locator='//button[@data-ouia-component-id="btn-modal-confirm"]')
+            actions = PF5Button(locator='.//button[contains(@aria-label, "Kebab toggle")]')
+            delete = PF5Button(locator='.//button[@role="menuitem"]')
+            confirm = PF5Button(locator='.//button[@data-ouia-component-id="btn-modal-confirm"]')
             table = PF5OUIATable(
                 component_id='table-composable-compact',
                 column_widgets={
@@ -760,7 +756,7 @@ class NewHostDetailsView(BaseLoggedInView):
                     'Type': Text('./span'),
                     # the next field can also be a form group
                     'Value': TextInput(
-                        locator='//textarea[contains(@aria-label, "Edit override field")]'
+                        locator='.//textarea[contains(@aria-label, "Edit override field")]'
                     ),
                     'Source attribute': Text('./span'),
                     # The next 2 buttons are hidden by default, but appear in this order
@@ -1123,7 +1119,7 @@ class ManageHostStatusesView(View):
 class EditAnsibleRolesView(View):
     """Edit Ansible Roles Modal"""
 
-    addAnsibleRole = DualListSelector('//div[@class = "pf-v5-c-dual-list-selector"]')
+    addAnsibleRole = DualListSelector('.//div[@class = "pf-v5-c-dual-list-selector"]')
     confirm = PF5Button(locator='.//button[@aria-label="submit ansible roles"]')
     hostAssignedAnsibleRoles = Text(
         './/button[@class="pf-v5-c-dual-list-selector__item"]/span[1]//span[2]'
@@ -1158,7 +1154,7 @@ class PF5CheckboxTreeView(CheckboxGroup):
 class ManageColumnsView(BaseLoggedInView):
     """Manage columns modal."""
 
-    ROOT = '//div[contains(@class, "pf-v5-c-modal-box")]'
+    ROOT = './/div[contains(@class, "pf-v5-c-modal-box")]'
 
     CHECKBOX_SECTION_TOGGLE = (
         './/*[self::span|self::label][contains(@class, "pf-v5-c-tree-view__node-text")]'
@@ -1182,27 +1178,25 @@ class ManageColumnsView(BaseLoggedInView):
         return (self.browser.element(locator) for locator in self.DEFAULT_COLLAPSED_SECTIONS)
 
     def get_tree_sections_state(self):
-        sections = self.browser.selenium.find_elements(
-            By.XPATH, '//div[@class="pf-v5-c-tree-view"]/ul/li'
-        )
+        sections = self.browser.elements('.//div[@class="pf-v5-c-tree-view"]/ul/li')
 
         expanded = []
         collapsed = []
 
         for section in sections:
-            # Get the label text
-            label = section.find_element(
-                By.XPATH, './/span[contains(@class,"pf-v5-c-tree-view__node-text")]'
-            ).text.strip()
+            label_el = self.browser.element(
+                './/span[contains(@class,"pf-v5-c-tree-view__node-text")]',
+                parent=section,
+            )
+            label = self.browser.text(label_el).strip()
 
-            state = section.get_attribute('aria-expanded')
+            state = self.browser.get_attribute('aria-expanded', section)
 
             if state == 'true':
                 expanded.append(label)
             elif state == 'false':
                 collapsed.append(label)
             else:
-                # No aria-expanded means it`s a leaf node
                 collapsed.append(label)
 
         return expanded, collapsed
@@ -1276,7 +1270,7 @@ class ManageMultiCVEnvModal(PF5Modal):
 
     ROOT = './/div[@data-ouia-component-id="assign-cv-modal" or @data-ouia-component-id="bulk-assign-cves-modal"]'
 
-    title = Text('//span[normalize-space(.)="Assign content view environments"]')
+    title = Text('.//span[normalize-space(.)="Assign content view environments"]')
     assign_cv_btn = PF5OUIAButton('assign-another-cv-button')
     save_btn = PF5Button(
         locator='.//button[@data-ouia-component-id="assign-cv-modal-save-button" or @data-ouia-component-id="bulk-assign-cves-modal-save-button"]'

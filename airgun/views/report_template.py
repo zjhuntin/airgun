@@ -1,5 +1,5 @@
 from widgetastic.widget import Checkbox, Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb, Button
+from widgetastic_patternfly5 import BreadCrumb, Button
 
 from airgun.views.common import (
     BaseLoggedInView,
@@ -18,8 +18,8 @@ from airgun.widgets import (
 
 
 class ReportTemplatesView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Report Templates']")
-    new = Button('Create Template')
+    title = Text(".//h1[normalize-space(.)='Report Templates']")
+    new = Button(locator=".//a[normalize-space(.)='Create Template']")
     table = Table(
         './/table',
         column_widgets={
@@ -36,7 +36,7 @@ class ReportTemplatesView(BaseLoggedInView, SearchableViewMixinPF4):
 
 class ReportTemplateDetailsView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):
@@ -90,10 +90,10 @@ class ReportTemplateGenerateView(BaseLoggedInView):
     email_to = TextInput(id='report_template_report_mail_to')
     inputs = TextInputsGroup(locator='.//form')
     output_format = FilteredDropdown(id='report_template_report_format')
-    hosts_filter = TextInput(locator='//input[contains(@class,"search-input")]')
+    hosts_filter = TextInput(locator='.//input[contains(@class,"search-input")]')
     generate_at = TextInput(id='report_template_report_generate_at')
-    submit = Text('//input[@name="commit"]')
-    generated = Text('//div[contains(@class, "alert-success")]')
+    submit = Text('.//input[@name="commit"]')
+    generated = Text('.//div[contains(@class, "alert-success")]')
     installability = FilteredDropdown(id='Installability')
     include_aws = FilteredDropdown(id='Include AWS')
     include_gcp = FilteredDropdown(id='Include GCP')

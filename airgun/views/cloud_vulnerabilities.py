@@ -73,7 +73,7 @@ class BulkActionsMenu(Widget):
 
         # Wait for menu to appear and click the item
         # Use absolute XPath since menu is dynamically positioned in the document
-        item_locator = f'//div[contains(@class, "pf-v5-c-menu")]//span[contains(@class, "pf-v5-c-menu__item-text") and contains(text(), "{item}")]'
+        item_locator = f'.//div[contains(@class, "pf-v5-c-menu")]//span[contains(@class, "pf-v5-c-menu__item-text") and contains(text(), "{item}")]'
         self.browser.click(item_locator)
 
 
@@ -94,7 +94,7 @@ class RowActionsMenu(Widget):
         # Wait for menu to appear and click the item
         # The menu appears as a sibling of the button in the parent <td>
         # Search from parent to find the menu
-        item_locator = f'//div[contains(@class, "pf-v5-c-menu")]//span[contains(@class, "pf-v5-c-menu__item-text") and contains(text(), "{item}")]'
+        item_locator = f'.//div[contains(@class, "pf-v5-c-menu")]//span[contains(@class, "pf-v5-c-menu__item-text") and contains(text(), "{item}")]'
         self.browser.click(item_locator)
 
 
@@ -109,7 +109,7 @@ class FilterTypeMenu(Widget):
         self.browser.click(self)
 
         # Wait for menu to appear and click the item (search from document root)
-        item_locator = f'//div[contains(@class, "pf-v5-c-menu")]//span[contains(@class, "pf-v5-c-menu__item-text") and contains(text(), "{item}")]'
+        item_locator = f'.//div[contains(@class, "pf-v5-c-menu")]//span[contains(@class, "pf-v5-c-menu__item-text") and contains(text(), "{item}")]'
         self.browser.click(item_locator)
 
 
@@ -122,7 +122,7 @@ class ExportMenu(Widget):
         """Open the export menu and click an item."""
         self.browser.click(self)
         item_locator = (
-            f'//div[@data-ouia-component-id="Export"]'
+            f'.//div[@data-ouia-component-id="Export"]'
             f'//span[contains(@class, "pf-v5-c-menu__item-text")'
             f' and contains(text(), "{item}")]'
         )
@@ -132,18 +132,18 @@ class ExportMenu(Widget):
 class CloudVulnerabilityView(BaseLoggedInView):
     """Main Insights Vulnerabilities view."""
 
-    title = Text('//h1[normalize-space(.)="Vulnerabilities"]')
+    title = Text('.//h1[normalize-space(.)="Vulnerabilities"]')
     cves_with_known_exploits_card = PF5Button(
-        '//div[@data-ouia-component-type="PF5/Card"][.//b[text()="CVEs with known exploits"]]'
+        './/div[@data-ouia-component-type="PF5/Card"][.//b[text()="CVEs with known exploits"]]'
     )
     cves_with_security_rules_card = PF5Button(
-        '//div[@data-ouia-component-type="PF5/Card"][.//b[text()="CVEs with security rules"]]'
+        './/div[@data-ouia-component-type="PF5/Card"][.//b[text()="CVEs with security rules"]]'
     )
     cves_with_critical_severity_card = PF5Button(
-        '//div[@data-ouia-component-type="PF5/Card"][.//b[text()="CVEs with critical severity"]]'
+        './/div[@data-ouia-component-type="PF5/Card"][.//b[text()="CVEs with critical severity"]]'
     )
     cves_with_important_severity_card = PF5Button(
-        '//div[@data-ouia-component-type="PF5/Card"][.//b[text()="CVEs with important severity"]]'
+        './/div[@data-ouia-component-type="PF5/Card"][.//b[text()="CVEs with important severity"]]'
     )
     search_bar = SearchInput(locator='.//input[contains(@aria-label, "search-field")]')
     cve_menu_toggle = PF5Button('.//button[contains(@class, "pf-v5-c-menu-toggle")]')
@@ -203,7 +203,7 @@ class ActionsDropdownMenu(Widget):
 
         # Wait for menu to appear and click the item
         # Use absolute XPath since menu is dynamically positioned in the document
-        item_locator = f'//div[contains(@class, "pf-v5-c-menu")]//span[contains(@class, "pf-v5-c-menu__item-text") and contains(text(), "{item}")]'
+        item_locator = f'.//div[contains(@class, "pf-v5-c-menu")]//span[contains(@class, "pf-v5-c-menu__item-text") and contains(text(), "{item}")]'
         self.browser.click(item_locator)
 
 

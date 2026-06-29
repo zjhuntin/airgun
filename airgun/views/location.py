@@ -1,6 +1,5 @@
 from widgetastic.widget import Checkbox, Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
-from widgetastic_patternfly4 import Pagination as PF4Pagination
+from widgetastic_patternfly5 import BreadCrumb, Pagination as PF4Pagination
 
 from airgun.views.common import BaseLoggedInView, SatVerticalTab, SearchableViewMixinPF4
 from airgun.widgets import (
@@ -12,8 +11,8 @@ from airgun.widgets import (
 
 
 class LocationsView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Locations']")
-    new = Text("//a[contains(@href, '/locations/new')]")
+    title = Text(".//h1[normalize-space(.)='Locations']")
+    new = Text(".//a[contains(@href, '/locations/new')]")
     table = Table(
         './/table',
         column_widgets={
@@ -33,7 +32,7 @@ class LocationCreateView(BaseLoggedInView):
     parent_location = FilteredDropdown(id='location_parent_id')
     name = TextInput(id='location_name')
     description = TextInput(id='location_description')
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):
@@ -47,8 +46,8 @@ class LocationCreateView(BaseLoggedInView):
 
 class LocationsEditView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text("//form[contains(@id, 'edit')]//input[@name='commit']")
-    cancel = Text("//a[normalize-space(.)='Cancel']")
+    submit = Text(".//form[contains(@id, 'edit')]//input[@name='commit']")
+    cancel = Text(".//a[normalize-space(.)='Cancel']")
 
     @property
     def is_displayed(self):

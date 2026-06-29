@@ -1,5 +1,5 @@
 from widgetastic.widget import Select, Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import (
     AddRemoveResourcesView,
@@ -20,8 +20,8 @@ from airgun.widgets import (
 
 
 class SyncPlansView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h2[contains(., 'Sync Plans')]")
-    new = Text("//button[contains(@href, '/sync_plans/new')]")
+    title = Text(".//h2[contains(., 'Sync Plans')]")
+    new = Text(".//button[contains(@href, '/sync_plans/new')]")
     table = Table('.//table', column_widgets={'Name': Text('./a')})
 
     @property
@@ -36,7 +36,7 @@ class SyncPlanCreateView(BaseLoggedInView):
     interval = Select(id='interval')
     cron_expression = TextInput(id='cron_expression')
     date_time = DateTime()
-    submit = Text("//button[contains(@ng-click, 'handleSave')]")
+    submit = Text(".//button[contains(@ng-click, 'handleSave')]")
 
     @property
     def is_displayed(self):
@@ -50,7 +50,7 @@ class SyncPlanCreateView(BaseLoggedInView):
 
 class SyncPlanEditView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    actions = ActionsDropdown("//div[contains(@class, 'btn-group')]")
+    actions = ActionsDropdown(".//div[contains(@class, 'btn-group')]")
     dialog = ConfirmationDialog()
 
     @property

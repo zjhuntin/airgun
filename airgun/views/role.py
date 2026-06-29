@@ -1,13 +1,13 @@
 from widgetastic.widget import Text, TextInput
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SearchableViewMixinPF4
 from airgun.widgets import ActionsDropdown, MultiSelect, SatTable
 
 
 class RolesView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Roles']")
-    new = Text("//a[contains(@href, '/roles/new')]")
+    title = Text(".//h1[normalize-space(.)='Roles']")
+    new = Text(".//a[contains(@href, '/roles/new')]")
     table = SatTable(
         './/table',
         column_widgets={
@@ -27,7 +27,7 @@ class RoleEditView(BaseLoggedInView):
     description = TextInput(id='role_description')
     locations = MultiSelect(id='ms-role_location_ids')
     organizations = MultiSelect(id='ms-role_organization_ids')
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):

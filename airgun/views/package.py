@@ -1,5 +1,5 @@
 from widgetastic.widget import Checkbox, Select, Text, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import (
     BaseLoggedInView,
@@ -13,7 +13,7 @@ from airgun.widgets import ItemsListReadOnly, Search
 class PackagesView(BaseLoggedInView):
     """Main Packages view"""
 
-    title = Text("//h2[contains(., 'Packages')]")
+    title = Text(".//h2[contains(., 'Packages')]")
     table = SatTable('.//table', column_widgets={'RPM': Text('./a')})
 
     repository = Select(locator=".//select[@ng-model='repository']")

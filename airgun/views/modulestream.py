@@ -27,7 +27,7 @@ class DescriptionList(Widget):
 class ModuleStreamView(BaseLoggedInView, SearchableViewMixinPF4):
     """Main Module_Streams view"""
 
-    title = Text('//h1[contains(., "Module Streams")]')
+    title = Text('.//h1[contains(., "Module Streams")]')
     table = SatTable(
         ".//table[@data-ouia-component-id='content-table']",
         column_widgets={'Name': Text('./a')},
@@ -40,8 +40,8 @@ class ModuleStreamView(BaseLoggedInView, SearchableViewMixinPF4):
 
 
 class ModuleStreamsDetailsView(BaseLoggedInView):
-    title = Text("//h2[contains(@class, 'pf-v5-c-title')]")
-    details_tab = Text("//button[normalize-space(.)='Details']")
+    title = Text(".//h2[contains(@class, 'pf-v5-c-title')]")
+    details_tab = Text(".//button[normalize-space(.)='Details']")
 
     @property
     def is_displayed(self):

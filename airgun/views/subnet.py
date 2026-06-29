@@ -1,5 +1,5 @@
 from widgetastic.widget import Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SatTab, SearchableViewMixinPF4
 from airgun.widgets import (
@@ -11,8 +11,8 @@ from airgun.widgets import (
 
 
 class SubnetsView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text('//*[(self::h1 or self::h5) and normalize-space(.)="Subnets"]')
-    new = Text('//a[normalize-space(.)="Create Subnet"]')
+    title = Text('.//*[(self::h1 or self::h5) and normalize-space(.)="Subnets"]')
+    new = Text('.//a[normalize-space(.)="Create Subnet"]')
     table = Table(
         './/table',
         column_widgets={
@@ -29,7 +29,7 @@ class SubnetsView(BaseLoggedInView, SearchableViewMixinPF4):
 
 class SubnetCreateView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):
@@ -44,7 +44,7 @@ class SubnetCreateView(BaseLoggedInView):
     class subnet(SatTab):
         name = TextInput(id='subnet_name')
         description = TextInput(id='subnet_description')
-        protocol = RadioGroup(locator="//div[label[contains(., 'Protocol')]]")
+        protocol = RadioGroup(locator=".//div[label[contains(., 'Protocol')]]")
         network_address = TextInput(id='subnet_network')
         network_prefix = TextInput(id='subnet_cidr')
         network_mask = TextInput(id='subnet_mask')

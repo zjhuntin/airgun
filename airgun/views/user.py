@@ -1,14 +1,14 @@
 from widgetastic.widget import Checkbox, Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SatTab, SearchableViewMixinPF4
 from airgun.widgets import FilteredDropdown, MultiSelect
 
 
 class UsersView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Users']")
-    new = Text("//a[contains(@href, '/users/new')]")
-    dropdown = Text("//a[@href='#' and contains(@class, 'dropdown-toggle')]")
+    title = Text(".//h1[normalize-space(.)='Users']")
+    new = Text(".//a[contains(@href, '/users/new')]")
+    dropdown = Text(".//a[@href='#' and contains(@class, 'dropdown-toggle')]")
     invalidate_jwt = Text('.//a[@data-method="patch"]')
     impersonate_user = Text('.//a[@data-method="post"]')
     table = Table(
@@ -27,7 +27,7 @@ class UsersView(BaseLoggedInView, SearchableViewMixinPF4):
 
 class UserDetailsView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):

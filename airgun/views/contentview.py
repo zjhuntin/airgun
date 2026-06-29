@@ -1,5 +1,5 @@
 from widgetastic.widget import Checkbox, ParametrizedView, Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb, Button
+from widgetastic_patternfly5 import BreadCrumb, Button
 
 from airgun.views.common import (
     AddRemoveResourcesView,
@@ -23,8 +23,8 @@ from airgun.widgets import (
 
 
 class ContentViewTableView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h2[contains(., 'Content Views')]")
-    new = Text("//a[contains(@href, '/content_views/new')]")
+    title = Text(".//h2[contains(., 'Content Views')]")
+    new = Text(".//a[contains(@href, '/content_views/new')]")
     table = Table('.//table', column_widgets={'Name': Text('./a')})
 
     @property
@@ -40,7 +40,7 @@ class ContentViewCreateView(BaseLoggedInView):
     composite_view = Checkbox(id='composite')
     solve_dependencies = Checkbox(id='solve_dependencies')
     auto_publish = Checkbox(id='auto_publish')
-    submit = Text("//button[contains(@ng-click, 'handleSave')]")
+    submit = Text(".//button[contains(@ng-click, 'handleSave')]")
 
     @property
     def is_displayed(self):
@@ -73,7 +73,7 @@ class ContentViewCopyView(BaseLoggedInView):
 class ContentViewRemoveView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
     BREADCRUMB_LENGTH = 3
-    conflicts = Text("//div[@ng-show='conflictingVersions.length > 0']")
+    conflicts = Text(".//div[@ng-show='conflictingVersions.length > 0']")
     table = Table('.//table')
     remove = Text(".//button[@ng-click='delete()']")
     cancel = Text(".//a[contains(@class, 'btn')][@ui-sref='content-view.versions']")
@@ -97,8 +97,8 @@ class ContentViewRemoveView(BaseLoggedInView):
 class ContentViewEditView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
     BREADCRUMB_LENGTH = 3
-    publish = Button('Publish New Version')
-    actions = ActionsDropdown("//div[contains(@class, 'btn-group')]")
+    publish = Button(locator=".//button[normalize-space(.)='Publish New Version']")
+    actions = ActionsDropdown(".//div[contains(@class, 'btn-group')]")
     dialog = ConfirmationDialog()
 
     @property
@@ -123,7 +123,7 @@ class ContentViewEditView(BaseLoggedInView):
     class versions(SatTab):
         searchbox = Search()
         table = Table(
-            locator='//table',
+            locator='.//table',
             column_widgets={
                 'Version': Text('.//a'),
                 'Status': PublishPromoteProgressBar(),
@@ -168,7 +168,7 @@ class ContentViewEditView(BaseLoggedInView):
         remove_selected = Text(".//button[@ng-click='removeFilters()']")
 
         table = Table(
-            locator='//table',
+            locator='.//table',
             column_widgets={
                 0: Checkbox(locator=".//input[@type='checkbox']"),
                 'Name': Text('./a'),
@@ -191,11 +191,11 @@ class ContentViewEditView(BaseLoggedInView):
 
 class ContentViewVersionPublishView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    version = Text('//div[@label="Version"]/div/span')
+    version = Text('.//div[@label="Version"]/div/span')
     description = TextInput(id='description')
     force_metadata_regeneration = Checkbox(id='forceMetadataRegeneration')
-    save = Text('//button[contains(@ng-click, "handleSave()")]')
-    cancel = Text('//button[contains(@ng-click, "handleCancel()")]')
+    save = Text('.//button[contains(@ng-click, "handleSave()")]')
+    cancel = Text('.//button[contains(@ng-click, "handleCancel()")]')
 
     @property
     def is_displayed(self):
@@ -273,8 +273,8 @@ class ContentViewVersionPromoteView(BaseLoggedInView):
     lce = ParametrizedView.nested(LCESelectorGroup)
     description = TextInput(id='description')
     force_metadata_regeneration = Checkbox(id='forceMetadataRegeneration')
-    promote = Text('//button[contains(@ng-click, "verifySelection()")]')
-    cancel = Text('//a[contains(@class, "btn")][@ui-sref="content-view.versions"]')
+    promote = Text('.//button[contains(@ng-click, "verifySelection()")]')
+    cancel = Text('.//a[contains(@class, "btn")][@ui-sref="content-view.versions"]')
 
     @property
     def is_displayed(self):

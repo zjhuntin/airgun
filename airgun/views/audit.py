@@ -32,7 +32,7 @@ class AuditEntry(View):
 
 
 class AuditsView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Audits']")
+    title = Text(".//h1[normalize-space(.)='Audits']")
     table = AuditEntry()
 
     @property

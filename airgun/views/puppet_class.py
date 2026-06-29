@@ -1,5 +1,5 @@
 from widgetastic.widget import Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SatTab, SearchableViewMixin
 from airgun.views.smart_class_parameter import SmartClassParameterContent
@@ -7,8 +7,8 @@ from airgun.widgets import FilteredDropdown, ItemsList, MultiSelect, SatTable
 
 
 class PuppetClassesView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h1[normalize-space(.)='Puppet Classes']")
-    import_environments = Text("//a[contains(@href, '/import_environments')]")
+    title = Text(".//h1[normalize-space(.)='Puppet Classes']")
+    import_environments = Text(".//a[contains(@href, '/import_environments')]")
     table = SatTable(
         './/table',
         column_widgets={
@@ -24,7 +24,7 @@ class PuppetClassesView(BaseLoggedInView, SearchableViewMixin):
 
 class PuppetClassDetailsView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):
@@ -47,11 +47,11 @@ class PuppetClassDetailsView(BaseLoggedInView):
     @View.nested
     class smart_class_parameter(SatTab):
         TAB_NAME = 'Smart Class Parameter'
-        filter = TextInput(locator="//input[@placeholder='Filter by name']")
+        filter = TextInput(locator=".//input[@placeholder='Filter by name']")
         environment_filter = FilteredDropdown(id='environment_filter')
         parameter_list = ItemsList(
-            "//div[@id='smart_class_param']//ul[contains(@class, 'smart-var-tabs')]"
+            ".//div[@id='smart_class_param']//ul[contains(@class, 'smart-var-tabs')]"
         )
         parameter = SmartClassParameterContent(
-            locator="//div[@id='smart_class_param']//div[@class='tab-pane fields active']"
+            locator=".//div[@id='smart_class_param']//div[@class='tab-pane fields active']"
         )

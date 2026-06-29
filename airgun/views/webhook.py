@@ -7,7 +7,7 @@ from airgun.widgets import PF5TypeaheadSelect, SatTable
 
 
 class WebhooksView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Webhooks']")
+    title = Text(".//h1[normalize-space(.)='Webhooks']")
     new = PF5Button('Create new')
     table = SatTable(
         './/table',
@@ -34,23 +34,23 @@ class WebhookFormView(BaseLoggedInView):
     additional_tab = PF5OUIAButton('webhook-form-tab-add')
 
     # General tab fields
-    subscribe_to = PF5TypeaheadSelect(locator='//input[@id="id-event"]')
-    name = TextInput(locator='//input[@id="id-name"]')
-    target_url = TextInput(locator='//input[@id="id-target_url"]')
-    template = PF5TypeaheadSelect(locator='//input[@id="id-webhook_template_id"]')
-    http_method = PF5TypeaheadSelect(locator='//input[@id="id-http_method"]')
+    subscribe_to = PF5TypeaheadSelect(locator='.//input[@id="id-event"]')
+    name = TextInput(locator='.//input[@id="id-name"]')
+    target_url = TextInput(locator='.//input[@id="id-target_url"]')
+    template = PF5TypeaheadSelect(locator='.//input[@id="id-webhook_template_id"]')
+    http_method = PF5TypeaheadSelect(locator='.//input[@id="id-http_method"]')
     enabled = Checkbox(id='id-enabled')
 
     # Credentials tab fields
-    user = TextInput(locator='//input[@id="id-user"]')
-    password = TextInput(locator='//input[@id="id-password"]')
+    user = TextInput(locator='.//input[@id="id-user"]')
+    password = TextInput(locator='.//input[@id="id-password"]')
     verify_ssl = Checkbox(id='id-verify_ssl')
     capsule_auth = Checkbox(id='id-proxy_authorization')
-    certs = TextInput(locator='//textarea[@id="id-ssl_ca_certs"]')
+    certs = TextInput(locator='.//textarea[@id="id-ssl_ca_certs"]')
 
     # Additional tab fields
-    content_type = TextInput(locator='//input[@id="id-http_content_type"]')
-    headers = TextInput(locator='//textarea[@id="id-http_headers"]')
+    content_type = TextInput(locator='.//input[@id="id-http_content_type"]')
+    headers = TextInput(locator='.//textarea[@id="id-http_headers"]')
 
     def _switch_to_tab(self, tab_name):
         """Click tab button to switch tabs."""
@@ -107,15 +107,15 @@ class WebhookFormView(BaseLoggedInView):
 
 
 class WebhookCreateView(WebhookFormView):
-    ROOT = '//div[@id="webhookCreateModal"]'
+    ROOT = './/div[@id="webhookCreateModal"]'
 
 
 class WebhookEditView(WebhookFormView):
-    ROOT = '//div[@id="webhookEditModal"]'
+    ROOT = './/div[@id="webhookEditModal"]'
 
 
 class DeleteWebhookConfirmationView(BaseLoggedInView):
-    ROOT = '//div[@id="webhookDeleteModal"]'
+    ROOT = './/div[@id="webhookDeleteModal"]'
     delete_button = PF5Button('Delete')
     cancel_button = PF5Button('Cancel')
 

@@ -1,5 +1,5 @@
 from widgetastic.widget import Text, TextInput
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 from widgetastic_patternfly5.ouia import PatternflyTable as PF5OUIATable
 
 from airgun.views.common import BaseLoggedInView, SearchableViewMixinPF4
@@ -14,8 +14,8 @@ class DeleteHardwareModelDialog(Pf5ConfirmationDialog):
 
 class HardwareModelsView(BaseLoggedInView, SearchableViewMixinPF4):
     delete_dialog = DeleteHardwareModelDialog()
-    title = Text("//h1[normalize-space(.)='Hardware models']")
-    new = Text('//button[@data-ouia-component-id="action-buttons-button"]')
+    title = Text(".//h1[normalize-space(.)='Hardware models']")
+    new = Text('.//button[@data-ouia-component-id="action-buttons-button"]')
     table = PF5OUIATable(
         component_id='table',
         column_widgets={
@@ -35,7 +35,7 @@ class HardwareModelCreateView(BaseLoggedInView):
     hardware_model = TextInput(id='model_hardware_model')
     vendor_class = TextInput(id='model_vendor_class')
     info = TextInput(id='model_info')
-    submit = Text('//button[@data-ouia-component-id="model_submit_button"]')
+    submit = Text('.//button[@data-ouia-component-id="model_submit_button"]')
 
     @property
     def is_displayed(self):

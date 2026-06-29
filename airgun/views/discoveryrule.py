@@ -1,6 +1,5 @@
 from widgetastic.widget import Checkbox, Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
-from widgetastic_patternfly5 import Button as PF5Button
+from widgetastic_patternfly5 import BreadCrumb, Button as PF5Button
 
 from airgun.views.common import BaseLoggedInView, SatTab, SearchableViewMixinPF4
 from airgun.widgets import (
@@ -12,9 +11,9 @@ from airgun.widgets import (
 
 
 class DiscoveryRulesView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Discovery Rules']")
-    page_info = Text("//foreman-react-component[contains(@name, 'DiscoveryRules')]/div/div")
-    new = Text("//a[contains(@href, '/discovery_rules/new')]")
+    title = Text(".//h1[normalize-space(.)='Discovery Rules']")
+    page_info = Text(".//foreman-react-component[contains(@name, 'DiscoveryRules')]/div/div")
+    new = Text(".//a[contains(@href, '/discovery_rules/new')]")
     new_on_blank_page = PF5Button('Create Rule')
     table = Table(
         './/table',
@@ -30,8 +29,8 @@ class DiscoveryRulesView(BaseLoggedInView, SearchableViewMixinPF4):
 
 
 class DiscoveryRuleCreateView(BaseLoggedInView):
-    submit = Text('//input[@name="commit"]')
-    cancel = Text('//a[normalize-space(.)="Cancel"]')
+    submit = Text('.//input[@name="commit"]')
+    cancel = Text('.//a[normalize-space(.)="Cancel"]')
     breadcrumb = BreadCrumb()
 
     @property

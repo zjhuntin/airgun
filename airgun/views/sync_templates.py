@@ -7,8 +7,7 @@ from widgetastic.widget import (
     TextInput,
     View,
 )
-from widgetastic_patternfly import BreadCrumb
-from widgetastic_patternfly5 import PatternflyTable as PF5Table
+from widgetastic_patternfly5 import BreadCrumb, PatternflyTable as PF5Table
 
 from airgun.views.common import BaseLoggedInView
 from airgun.widgets import PF5RadioGroup
@@ -16,8 +15,8 @@ from airgun.widgets import PF5RadioGroup
 
 class SyncTemplatesView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    title = Text("//h1[contains(., 'Import or Export Templates')]")
-    sync_type = PF5RadioGroup("//div[@id='sync-type_formGroup']")
+    title = Text(".//h1[contains(., 'Import or Export Templates')]")
+    sync_type = PF5RadioGroup(".//div[@id='sync-type_formGroup']")
     submit = Text(".//button[contains(.,'Submit')]")
 
     template = ConditionalSwitchableView(reference='sync_type')
@@ -66,7 +65,7 @@ class SyncTemplatesView(BaseLoggedInView):
 
 
 class TemplatesReportView(BaseLoggedInView):
-    title = Text('//h1')
+    title = Text('.//h1')
     REPORTS = PF5Table(locator='.//table[contains(@data-ouia-component-id, "foreman-templates")]')
 
     @property

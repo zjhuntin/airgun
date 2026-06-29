@@ -1,5 +1,5 @@
 from widgetastic.widget import Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SatTab, SatTable, SearchableViewMixin
 from airgun.widgets import ActionsDropdown, MultiSelect

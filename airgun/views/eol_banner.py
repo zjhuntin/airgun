@@ -2,10 +2,10 @@ from widgetastic.widget import ClickableMixin, Text, View
 
 
 class EOLBannerView(View, ClickableMixin):
-    name = Text('//div[@id="satellite-eol-banner"]')
-    dismiss_button = Text('//*[@id="satellite-oel-banner-dismiss-button"]')
-    LIFECYCLE_LINK = '//a[text()[normalize-space(.) = "Red Hat Satellite Product Life Cycle"]]'
-    HELPER_LINK = '//a[text()[normalize-space(.) = "Red Hat Satellite Upgrade Helper."]]'
+    name = Text('.//div[@id="satellite-eol-banner"]')
+    dismiss_button = Text('.//*[@id="satellite-oel-banner-dismiss-button"]')
+    LIFECYCLE_LINK = './/a[text()[normalize-space(.) = "Red Hat Satellite Product Life Cycle"]]'
+    HELPER_LINK = './/a[text()[normalize-space(.) = "Red Hat Satellite Upgrade Helper."]]'
 
     @property
     def warning(self):

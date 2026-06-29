@@ -16,13 +16,11 @@ from widgetastic.widget import (
     View,
     Widget,
 )
-from widgetastic_patternfly import BreadCrumb, Button
-from widgetastic_patternfly4.ouia import (
-    BreadCrumb as PF4BreadCrumb,
-    Button as PF4Button,
-)
+from widgetastic_patternfly5 import BreadCrumb, Button
 from widgetastic_patternfly5.components.tabs import Tab
 from widgetastic_patternfly5.ouia import (
+    BreadCrumb as PF4BreadCrumb,
+    Button as PF4Button,
     Button as PF5OUIAButton,
     Dropdown as PF5OUIADropdown,
     FormSelect as PF5OUIAFormSelect,
@@ -62,8 +60,12 @@ class TableActions(View):
     without any extra controls, so we cannot re-use any existing widgets
     """
 
-    edit = Button('Edit')
-    delete = Button('Delete')
+    edit = Button(
+        locator=".//*[normalize-space(.)='Edit' and (self::a or self::button or self::span)]"
+    )
+    delete = Button(
+        locator=".//*[normalize-space(.)='Delete' and (self::a or self::button or self::span)]"
+    )
 
 
 class PuppetClassParameterValue(Widget):
@@ -213,13 +215,13 @@ class HostInterface(View):
 
 
 class HostStatusesView(BaseLoggedInView):
-    title = Text("//h5[normalize-space(.)='Host Status Overview']")
-    status_green_total = Text("//div[contains(@class, 'status-count')][1]/a[1]")
-    status_green_owned = Text("//div[contains(@class, 'status-count')][1]/a[2]")
-    status_yellow_total = Text("//div[contains(@class, 'status-count')][2]/span[1]")
-    status_yellow_owned = Text("//div[contains(@class, 'status-count')][2]/span[2]")
-    status_red_total = Text("//div[contains(@class, 'status-count')][3]/a[1]")
-    status_red_owned = Text("//div[contains(@class, 'status-count')][3]/a[2]")
+    title = Text(".//h5[normalize-space(.)='Host Status Overview']")
+    status_green_total = Text(".//div[contains(@class, 'status-count')][1]/a[1]")
+    status_green_owned = Text(".//div[contains(@class, 'status-count')][1]/a[2]")
+    status_yellow_total = Text(".//div[contains(@class, 'status-count')][2]/span[1]")
+    status_yellow_owned = Text(".//div[contains(@class, 'status-count')][2]/span[2]")
+    status_red_total = Text(".//div[contains(@class, 'status-count')][3]/a[1]")
+    status_red_owned = Text(".//div[contains(@class, 'status-count')][3]/a[2]")
 
     @property
     def is_displayed(self):
@@ -227,14 +229,14 @@ class HostStatusesView(BaseLoggedInView):
 
 
 class HostsView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Hosts']")
+    title = Text(".//h1[normalize-space(.)='Hosts']")
     manage_columns = PF5OUIAButton('manage-columns-button')
     searchbar_dropdown = PF5OUIADropdown('selection-checkbox')
     export = Text(".//a[contains(@class, 'btn')][contains(@href, 'hosts.csv')]")
     new = Text(".//div[@id='foreman-page']//a[@data-ouia-component-id='create-host-button']")
     register = PF4Button('OUIA-Generated-Button-secondary-2')
     new_ui_button = Text(".//a[contains(@class, 'btn')][contains(@href, 'new/hosts')]")
-    select_all = Checkbox(locator="//input[@id='check_all']")
+    select_all = Checkbox(locator=".//input[@id='check_all']")
     table = PF5OUIATable(
         component_id='hosts-index-table',
         column_widgets={
@@ -247,7 +249,7 @@ class HostsView(BaseLoggedInView, SearchableViewMixinPF4):
         },
     )
     displayed_table_headers = './/table/thead/tr/th[not(@hidden)]'
-    host_status = "//span[contains(@class, 'host-status')]"
+    host_status = ".//span[contains(@class, 'host-status')]"
     actions = PF5OUIADropdown(component_id='legacy-ui-kebab')
     dialog = Pf4ConfirmationDialog()
 
@@ -263,13 +265,14 @@ class HostsView(BaseLoggedInView, SearchableViewMixinPF4):
         Note: Cannot use 'self.table.headers' for this because it returns also hidden headers.
         """
         return [
-            header.text.strip() for header in self.browser.elements(self.displayed_table_headers)
+            self.browser.text(header).strip()
+            for header in self.browser.elements(self.displayed_table_headers)
         ]
 
 
 class HostCreateView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):
@@ -347,7 +350,7 @@ class HostCreateView(BaseLoggedInView):
 
             @View.nested
             class storage(RemovableWidgetsItemsListView):
-                ROOT = "//fieldset[@id='storage_volumes']"
+                ROOT = ".//fieldset[@id='storage_volumes']"
                 ITEMS = "./div/div[contains(@class, 'removable-item')]"
                 ITEM_WIDGET_CLASS = ComputeResourceLibvirtProfileStorageItem
 
@@ -367,7 +370,7 @@ class HostCreateView(BaseLoggedInView):
 
             @View.nested
             class storage(RemovableWidgetsItemsListView):
-                ROOT = "//fieldset[@id='storage_volumes']"
+                ROOT = ".//fieldset[@id='storage_volumes']"
                 ITEMS = "./div/div[contains(@class, 'removable-item')]"
                 ITEM_WIDGET_CLASS = ComputeResourceGoogleProfileStorageItem
 
@@ -409,10 +412,10 @@ class HostCreateView(BaseLoggedInView):
         class storage(SatTab):
             TAB_NAME = 'Virtual Machine'
             storage_volumes = Text(
-                "//fieldset[@id='storage_volumes']//a[contains(normalize-space(.), 'Add Volume')]"
+                ".//fieldset[@id='storage_volumes']//a[contains(normalize-space(.), 'Add Volume')]"
             )
             storage_class = FilteredDropdown(
-                locator="//span[contains(@id, 'storage_class-container')]"
+                locator=".//span[contains(@id, 'storage_class-container')]"
             )
             size = TextInput(
                 locator="(//fieldset[@id='storage_volumes']//input[contains(@id, 'capacity')])[last()]"
@@ -437,12 +440,12 @@ class HostCreateView(BaseLoggedInView):
         operating_system = FilteredDropdown(id='host_operatingsystem')
         build = Checkbox(id='host_build')
         image = FilteredDropdown(id='host_compute_attributes_image')
-        media_type = RadioGroup(locator="//div[label[contains(., 'Media Selection')]]")
+        media_type = RadioGroup(locator=".//div[label[contains(., 'Media Selection')]]")
         media = FilteredDropdown(id='host_medium')
         ptable = FilteredDropdown(id='host_ptable')
         disk = TextInput(id='host_disk')
         root_password = TextInput(id='host_root_pass')
-        disable_passwd = Text('//a[@id="disable-pass-btn"]')
+        disable_passwd = Text('.//a[@id="disable-pass-btn"]')
 
     @View.nested
     class interfaces(SatTab):
@@ -450,7 +453,7 @@ class HostCreateView(BaseLoggedInView):
         interfaces_list = SatTable(
             ".//table[@id='interfaceList']", column_widgets={'Actions': TableActions()}
         )
-        add_new_interface = Text("//button[@id='addInterface']")
+        add_new_interface = Text(".//button[@id='addInterface']")
 
         def before_fill(self, values=None):
             """If we don't want to break view.fill() procedure flow, we need to
@@ -567,10 +570,10 @@ class HostCreateView(BaseLoggedInView):
 
 
 class HostRegisterView(BaseLoggedInView):
-    title = Text("//h1[normalize-space(.)='Register Host']")
+    title = Text(".//h1[normalize-space(.)='Register Host']")
     generate_command = PF5OUIAButton('registration_generate_btn')
     cancel = PF5OUIAButton('registration-cancel-button')
-    registration_command = TextInput(locator="//input[@aria-label='Copyable input']")
+    registration_command = TextInput(locator=".//input[@aria-label='Copyable input']")
 
     @View.nested
     class general(Tab):
@@ -579,20 +582,20 @@ class HostRegisterView(BaseLoggedInView):
             './/div[contains(@class, "pf-v5-c-tabs")]//ul'
             '/li[button[normalize-space(.)={@tab_name|quote}]]'
         )
-        ROOT = '//section[@id="generalSection"]'
+        ROOT = './/section[@id="generalSection"]'
 
         organization = PF5OUIAFormSelect('reg_organization')
         location = PF5OUIAFormSelect('reg_location')
         host_group = PF5OUIAFormSelect('reg_host_group')
         operating_system = PF5OUIAFormSelect('os-select')
-        linux_host_init_link = Link('//a[normalize-space(.)="Linux host_init_config default"]')
+        linux_host_init_link = Link('.//a[normalize-space(.)="Linux host_init_config default"]')
         capsule = PF5OUIAFormSelect('reg_smart_proxy')
         insecure = Checkbox(id='reg_insecure')
         activation_keys = BaseMultiSelect('activation-keys-field')
         activation_key_helper = Text(
-            locator='//div[@data-ouia-component-id="activation-keys-field"]/..//div[contains(@class, "-c-helper-text")]'
+            locator='.//div[@data-ouia-component-id="activation-keys-field"]/..//div[contains(@class, "-c-helper-text")]'
         )
-        new_activation_key_link = Link('//a[normalize-space(.)="Create new activation key"]')
+        new_activation_key_link = Link('.//a[normalize-space(.)="Create new activation key"]')
 
     @View.nested
     class advanced(Tab):
@@ -601,7 +604,7 @@ class HostRegisterView(BaseLoggedInView):
             './/div[contains(@class, "pf-v5-c-tabs")]//ul'
             '/li[button[normalize-space(.)={@tab_name|quote}]]'
         )
-        ROOT = '//section[@id="advancedSection"]'
+        ROOT = './/section[@id="advancedSection"]'
         setup_rex = PF5OUIAFormSelect('registration_setup_remote_execution')
         setup_insights = PF5OUIAFormSelect('registration_setup_insights')
         install_packages = TextInput(id='reg_packages')
@@ -612,7 +615,7 @@ class HostRegisterView(BaseLoggedInView):
         ignore_error = Checkbox(id='reg_katello_ignore')
         force = Checkbox(id='reg_katello_force')
         install_packages_helper = Text(
-            locator='//input[@id="reg_packages"]/../..//div[contains(@class, "-c-helper-text")]'
+            locator='.//input[@id="reg_packages"]/../..//div[contains(@class, "-c-helper-text")]'
         )
         repository_add = PF5OUIAButton('host_reg_add_more_repositories')
 
@@ -646,7 +649,7 @@ class HostRegisterView(BaseLoggedInView):
 class RepositoryListView(View):
     """Repository List view"""
 
-    ROOT = '//div[@id="pf-modal-part-0" or @data-ouia-component-type="PF5/ModalContent"]'
+    ROOT = './/div[@id="pf-modal-part-0" or @data-ouia-component-type="PF5/ModalContent"]'
     repository = PF5OUIATextInput('host_reg_repo')
     repository_gpg_key_url = PF5OUIATextInput('host_reg_gpg_key')
     repository_list_confirm = PF5OUIAButton('reg_modal_confirm')
@@ -705,7 +708,7 @@ class RecommendationWidget(GenericLocatorWidget):
 class RecommendationListView(View):
     """Insights tab view of a host"""
 
-    ROOT = "//div[contains(@id, 'host_details_insights_tab')]"
+    ROOT = ".//div[contains(@id, 'host_details_insights_tab')]"
     ITEMS = ".//div[@id='hits_list']/div[contains(@class, 'list-group-item')]"
     ITEM_WIDGET = RecommendationWidget
 
@@ -733,27 +736,27 @@ class HostDetailsView(BaseLoggedInView):
         )
 
     boot_disk = ActionsDropdown(
-        "//div[contains(@class, 'btn-group')][contains(., 'Boot')][not(*[self::div])]"
+        ".//div[contains(@class, 'btn-group')][contains(., 'Boot')][not(*[self::div])]"
     )
     schedule_remote_job = ActionsDropdown(
-        "//div[contains(@class, 'btn-group')][contains(., 'Schedule')][not(*[self::div])]"
+        ".//div[contains(@class, 'btn-group')][contains(., 'Schedule')][not(*[self::div])]"
     )
-    back = Text("//a[normalize-space(.)='Back']")
-    webconsole = Text("//a[normalize-space(.)='Web Console']")
-    edit = Text("//a[@id='edit-button']")
-    clone = Text("//a[@id='clone-button']")
-    build = Text("//a[@id='build-review']")
-    delete = Text("//a[@id='delete-button']")
-    audits_details = Text("//a[normalize-space(.)='Audits']")
-    facts_details = Text("//a[normalize-space(.)='Facts']")
-    yaml_dump = Text("//a[normalize-space(.)='Puppet YAML']")
-    yaml_output = Text('//pre')
-    content_details = Text("//a[normalize-space(.)='Content']")
-    recommendations = Text("//a[normalize-space(.)='Recommendations']")
+    back = Text(".//a[normalize-space(.)='Back']")
+    webconsole = Text(".//a[normalize-space(.)='Web Console']")
+    edit = Text(".//a[@id='edit-button']")
+    clone = Text(".//a[@id='clone-button']")
+    build = Text(".//a[@id='build-review']")
+    delete = Text(".//a[@id='delete-button']")
+    audits_details = Text(".//a[normalize-space(.)='Audits']")
+    facts_details = Text(".//a[normalize-space(.)='Facts']")
+    yaml_dump = Text(".//a[normalize-space(.)='Puppet YAML']")
+    yaml_output = Text('.//pre')
+    content_details = Text(".//a[normalize-space(.)='Content']")
+    recommendations = Text(".//a[normalize-space(.)='Recommendations']")
 
     @View.nested
     class properties(SatTab):
-        properties_table = SatTableWithUnevenStructure(locator="//table[@id='properties_table']")
+        properties_table = SatTableWithUnevenStructure(locator=".//table[@id='properties_table']")
 
     @View.nested
     class insights(SatTab):
@@ -762,8 +765,8 @@ class HostDetailsView(BaseLoggedInView):
 
 class HostEditView(HostCreateView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
-    toggle_manage = Text("//a[contains(@href, '/toggle_manage')]")
+    submit = Text('.//input[@name="commit"]')
+    toggle_manage = Text(".//a[contains(@href, '/toggle_manage')]")
 
     @property
     def is_displayed(self):
@@ -779,9 +782,9 @@ class HostsActionCommonDialog(BaseLoggedInView):
     """Common base class Dialog for Hosts Actions"""
 
     title = None
-    table = SatTable("//div[@class='modal-body']//table")
+    table = SatTable(".//div[@class='modal-body']//table")
     keep_selected = Checkbox(id='keep_selected')
-    submit = Text('//button[@onclick="tfm.hosts.table.submitModalForm()"]')
+    submit = Text('.//button[@onclick="tfm.hosts.table.submitModalForm()"]')
 
     @property
     def is_displayed(self):
@@ -790,23 +793,23 @@ class HostsActionCommonDialog(BaseLoggedInView):
 
 class HostsChangeGroup(HostsActionCommonDialog):
     title = Text(
-        "//h4[normalize-space(.)='Change Group - The following hosts are about to be changed']"
+        ".//h4[normalize-space(.)='Change Group - The following hosts are about to be changed']"
     )
     host_group = Select(id='hostgroup_id')
 
 
 class HostsChangeContentSourceView(View):
-    title = Text('//h5')
+    title = Text('.//h5')
 
-    hosts_to_update = Text('//span[@class="pf-v5-c-label pf-m-green"]//a')
-    ignored_hosts = Text('//span[@class="pf-v5-c-label pf-m-orange"]//a')
+    hosts_to_update = Text('.//span[@class="pf-v5-c-label pf-m-green"]//a')
+    ignored_hosts = Text('.//span[@class="pf-v5-c-label pf-m-orange"]//a')
 
     content_source_select = PF5OUIASelect('content-source-select')
-    disabled_environment_status = Text('//div[@aria-label="Info Alert"]')
+    disabled_environment_status = Text('.//div[@aria-label="Info Alert"]')
 
     # Multi-CVEnv support widgets (Katello PR #11704)
     add_cvenv_btn = PF5OUIAButton('add-cvenv-button')
-    cvenv_count_badge = Text('//span[@class="pf-v5-c-badge pf-m-read"]')
+    cvenv_count_badge = Text('.//span[@class="pf-v5-c-badge pf-m-read"]')
     new_assignment_section = ParametrizedView.nested(NewCVEnvAssignmentSection)
 
     # Widgets for selecting LCE and CV within an assignment section
@@ -816,14 +819,14 @@ class HostsChangeContentSourceView(View):
     run_job_invocation = PF5OUIAButton('run-job-invocation-button')
     update_hosts_manually = PF5OUIAButton('update-source-button')
 
-    show_more_change_content_source = Text('//button[normalize-space(.)="Show more"]')
-    show_less_change_content_source = Text('//button[normalize-space(.)="Show less"]')
-    generated_script = Text('//code')
+    show_more_change_content_source = Text('.//button[normalize-space(.)="Show more"]')
+    show_less_change_content_source = Text('.//button[normalize-space(.)="Show less"]')
+    generated_script = Text('.//code')
 
 
 class HostsChangeEnvironment(HostsActionCommonDialog):
     title = Text(
-        "//h4[normalize-space(.)='Change Environment - "
+        ".//h4[normalize-space(.)='Change Environment - "
         "The following hosts are about to be changed']"
     )
     environment = Select(id='environment_id')
@@ -846,8 +849,8 @@ class HostsTaxonomyMismatchRadioGroup(GenericLocatorWidget):
     """
 
     taxonomy = None
-    fix_mismatch = Text("//input[contains(@id, 'optimistic_import_yes')]")
-    fail_on_mismatch = Text("//input[contains(@id, 'optimistic_import_no')]")
+    fix_mismatch = Text(".//input[contains(@id, 'optimistic_import_yes')]")
+    fail_on_mismatch = Text(".//input[contains(@id, 'optimistic_import_no')]")
     buttons_text = {
         'fix_mismatch': 'Fix {taxonomy} on Mismatch',
         'fail_on_mismatch': 'Fail on Mismatch',
@@ -855,7 +858,7 @@ class HostsTaxonomyMismatchRadioGroup(GenericLocatorWidget):
 
     def __init__(self, parent, **kwargs):
         self.taxonomy = kwargs.pop('taxonomy')
-        super().__init__(parent, "//div[@class='modal-body']//div[@id='content']//form", **kwargs)
+        super().__init__(parent, ".//div[@class='modal-body']//div[@id='content']//form", **kwargs)
 
     def _is_checked(self, widget):
         """Returns whether the widget is checked"""
@@ -882,7 +885,7 @@ class HostsTaxonomyMismatchRadioGroup(GenericLocatorWidget):
 
 class HostsAssignOrganization(HostsActionCommonDialog):
     title = Text(
-        "//h4[normalize-space(.)='Assign Organization - "
+        ".//h4[normalize-space(.)='Assign Organization - "
         "The following hosts are about to be changed']"
     )
     organization = Select(id='organization_id')
@@ -891,7 +894,7 @@ class HostsAssignOrganization(HostsActionCommonDialog):
 
 class HostsAssignLocation(HostsActionCommonDialog):
     title = Text(
-        "//h4[normalize-space(.)='Assign Location - The following hosts are about to be changed']"
+        ".//h4[normalize-space(.)='Assign Location - The following hosts are about to be changed']"
     )
     location = Select(id='location_id')
     on_mismatch = HostsTaxonomyMismatchRadioGroup(taxonomy='Location')
@@ -899,7 +902,7 @@ class HostsAssignLocation(HostsActionCommonDialog):
 
 class HostsAssignCompliancePolicy(HostsActionCommonDialog):
     title = Text(
-        "//h4[normalize-space(.)='Assign Compliance Policy - "
+        ".//h4[normalize-space(.)='Assign Compliance Policy - "
         "The following hosts are about to be changed']"
     )
     policy = Select(id='policy_id')
@@ -907,7 +910,7 @@ class HostsAssignCompliancePolicy(HostsActionCommonDialog):
 
 class HostsUnassignCompliancePolicy(HostsActionCommonDialog):
     title = Text(
-        "//h4[normalize-space(.)='Unassign Compliance Policy"
+        ".//h4[normalize-space(.)='Unassign Compliance Policy"
         " - The following hosts are about to be changed']"
     )
     policy = Select(id='policy_id')
@@ -915,7 +918,7 @@ class HostsUnassignCompliancePolicy(HostsActionCommonDialog):
 
 class HostsChangeOpenscapCapsule(HostsActionCommonDialog):
     title = Text(
-        "//h4[normalize-space(.)='Change OpenSCAP Capsule - "
+        ".//h4[normalize-space(.)='Change OpenSCAP Capsule - "
         "The following hosts are about to be changed']"
     )
     policy = Select(id='smart_proxy_id')
@@ -923,7 +926,7 @@ class HostsChangeOpenscapCapsule(HostsActionCommonDialog):
 
 class HostsDeleteActionDialog(HostsActionCommonDialog):
     title = Text(
-        "//h4[normalize-space(.)='Delete Hosts - The following hosts are about to be changed']"
+        ".//h4[normalize-space(.)='Delete Hosts - The following hosts are about to be changed']"
     )
 
 

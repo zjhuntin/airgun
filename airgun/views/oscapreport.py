@@ -1,5 +1,5 @@
 from widgetastic.widget import Text, View
-from widgetastic_patternfly4 import Button
+from widgetastic_patternfly5 import Button
 from widgetastic_patternfly5.ouia import FormSelect as PF5FormSelect
 
 from airgun.views.common import BaseLoggedInView, SearchableViewMixin, WizardStepView
@@ -11,7 +11,7 @@ from airgun.widgets import (
 
 
 class SCAPReportView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h1[normalize-space(.)='Compliance Reports']")
+    title = Text(".//h1[normalize-space(.)='Compliance Reports']")
     table = SatTable(
         './/table',
         column_widgets={
@@ -32,7 +32,7 @@ class SCAPReportView(BaseLoggedInView, SearchableViewMixin):
 
 
 class SCAPReportDetailsView(BaseLoggedInView):
-    show_log_messages_label = Text('//span[normalize-space(.)="Show log messages:"]')
+    show_log_messages_label = Text('.//span[normalize-space(.)="Show log messages:"]')
     report_status_chart = BarChart(
         ".//div[contains(@class, 'arf-report-rule-chart-col')]//div[contains(@class, 'stats-well')]"
     )
@@ -60,7 +60,7 @@ class RemediateModal(View):
     It contains multiple nested classes each representing a step of the wizard.
     """
 
-    ROOT = '//div[contains(@data-ouia-component-id, "OUIA-Generated-Modal-large-")]'
+    ROOT = './/div[contains(@data-ouia-component-id, "OUIA-Generated-Modal-large-")]'
 
     title = Text('.//h2[contains(@class, "pf-v5-c-wizard__title-text")]')
     close_modal = Button(locator='.//button[@aria-label="Close"]')

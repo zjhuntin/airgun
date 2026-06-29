@@ -1,5 +1,5 @@
 from widgetastic.widget import Checkbox, Select, Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb, Button
+from widgetastic_patternfly5 import BreadCrumb, Button
 
 from airgun.views.common import (
     BaseLoggedInView,
@@ -25,9 +25,9 @@ class TemplateHostEnvironmentAssociation(GenericRemovableWidgetItem):
 
 
 class ProvisioningTemplatesView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[normalize-space(.)='Provisioning Templates']")
-    new = Button('Create Template')
-    build_pxe_default = Button('Build PXE Default')
+    title = Text(".//h1[normalize-space(.)='Provisioning Templates']")
+    new = Text(".//a[contains(@href, '/provisioning_templates/new')]")
+    build_pxe_default = Button(locator=".//a[normalize-space(.)='Build PXE Default']")
     table = Table(
         './/table',
         column_widgets={
@@ -44,7 +44,7 @@ class ProvisioningTemplatesView(BaseLoggedInView, SearchableViewMixinPF4):
 
 class ProvisioningTemplateDetailsView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):
@@ -79,7 +79,7 @@ class ProvisioningTemplateDetailsView(BaseLoggedInView):
 
         @View.nested
         class valid_hostgroups(RemovableWidgetsItemsListView):
-            ROOT = "//div[@id='association']"
+            ROOT = ".//div[@id='association']"
             ITEMS = ".//fieldset[@id='template_combination']/div"
             ITEM_WIDGET_CLASS = TemplateHostEnvironmentAssociation
             add_item_button = Text(".//a[normalize-space(.)='+ Add Combination']")

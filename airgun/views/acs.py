@@ -24,7 +24,7 @@ from airgun.widgets import DualListSelector, EditModal, ItemsList, SearchInput
 class EditDetailsModal(EditModal):
     """Class representing the Edit Details modal."""
 
-    ROOT = '//div[@data-ouia-component-id="acs-edit-details-modal"]'
+    ROOT = './/div[@data-ouia-component-id="acs-edit-details-modal"]'
 
     name = OUIATextInput('acs-edit-name-field')
     description = TextInput(locator='.//textarea[@id="acs_description_field"]')
@@ -36,7 +36,7 @@ class EditDetailsModal(EditModal):
 class EditCapsulesModal(DualListSelector):
     """Class representing the Edit Capsule modal."""
 
-    ROOT = '//div[@data-ouia-component-id="acs-edit-smart-proxies-modal"]'
+    ROOT = './/div[@data-ouia-component-id="acs-edit-smart-proxies-modal"]'
 
     use_http_proxies = Switch(locator='.//label[@for="use-http-proxies-switch"]')
 
@@ -47,7 +47,7 @@ class EditCapsulesModal(DualListSelector):
 class EditUrlAndSubpathsModal(EditModal):
     """Class repsenting the Edit URL and Subpaths modal."""
 
-    ROOT = '//div[@data-ouia-component-id="acs-edit-url-paths-modal"]'
+    ROOT = './/div[@data-ouia-component-id="acs-edit-url-paths-modal"]'
 
     base_url = OUIATextInput('acs-base-url-field')
     url_err = Text('.//div[contains(@id, "acs_base_url-helper")]')
@@ -61,7 +61,7 @@ class EditUrlAndSubpathsModal(EditModal):
 class EditCredentialsModal(EditModal):
     """Class representing the Edit Credentials modal."""
 
-    ROOT = '//div[@data-ouia-component-id="acs-edit-credentials-modal"]'
+    ROOT = './/div[@data-ouia-component-id="acs-edit-credentials-modal"]'
 
     verify_ssl_toggle = Switch(locator='.//label[@for="verify-ssl-switch"]')
     select_ca_cert = OUIAFormSelect('sslCAcert-select')
@@ -83,7 +83,7 @@ class EditCredentialsModal(EditModal):
 class EditProductsModal(DualListSelector):
     """Class representing the Edit Products modal."""
 
-    ROOT = '//div[@data-ouia-component-id="acs-edit-products-modal"]'
+    ROOT = './/div[@data-ouia-component-id="acs-edit-products-modal"]'
 
     edit_button = OUIAButton('edit-acs-products-submit')
     cancel_button = OUIAButton('edit-acs-products-cancel')
@@ -110,7 +110,7 @@ class AddAlternateContentSourceModal(View):
     * Review details
     """
 
-    ROOT = '//div[contains(@data-ouia-component-id, "OUIA-Generated-Modal-large-")]'
+    ROOT = './/div[contains(@data-ouia-component-id, "OUIA-Generated-Modal-large-")]'
 
     title = OUIAText('wizard-header-text')
     close_modal = Button(locator='.//button[@aria-label="Close"]')
@@ -118,9 +118,9 @@ class AddAlternateContentSourceModal(View):
     @View.nested
     class select_source_type(WizardStepView):
         expander = Text('.//button[contains(.,"Select source type")]')
-        custom_option = Text('//*[@id="custom"]')
-        simplified_option = Text('//*[@id="simplified"]')
-        rhui_option = Text('//*[@id="rhui"]')
+        custom_option = Text('.//*[@id="custom"]')
+        simplified_option = Text('.//*[@id="simplified"]')
+        rhui_option = Text('.//*[@id="rhui"]')
         content_type_select = OUIAFormSelect('content-type-select')
 
     @View.nested
@@ -208,52 +208,52 @@ class RowDrawer(View):
 
     title = OUIAText('acs-name-text')
     refresh_resource = OUIAButton('refresh-acs')
-    kebab_menu = Dropdown(locator='//button[contains(@aria-label, "details_actions")]')
-    last_refresh = Text('//dd[contains(@aria-label, "last_refresh_text_value")]')
+    kebab_menu = Dropdown(locator='.//button[contains(@aria-label, "details_actions")]')
+    last_refresh = Text('.//dd[contains(@aria-label, "last_refresh_text_value")]')
 
     @View.nested
     class details(View, AcsStackItem):
         """Class representing the Details stack item in the ACS drawer."""
 
-        ROOT = (
-            '//div[normalize-space(.)="Details" and contains(@class, "pf-v5-c-expandable-section")]'
-        )
+        ROOT = './/div[normalize-space(.)="Details" and contains(@class, "pf-v5-c-expandable-section")]'
 
         title = OUIAText('expandable-details-text')
-        edit_details = Button(locator='//button[contains(@aria-label, "edit-details-pencil-edit")]')
+        edit_details = Button(
+            locator='.//button[contains(@aria-label, "edit-details-pencil-edit")]'
+        )
 
         @View.nested
         class details_stack_content(View):
             """Class representing content of the Details stack item."""
 
-            ROOT = '//div[@id="showDetails-content"]'
+            ROOT = './/div[@id="showDetails-content"]'
 
-            name = Text('//dd[@aria-label="name_text_value"]')
-            description = Text('//dd[@aria-label="description_text_value"]')
-            type = Text('//dd[@aria-label="type_text_value"]')
-            content_type = Text('//dd[@aria-label="content_type_text_value"]')
+            name = Text('.//dd[@aria-label="name_text_value"]')
+            description = Text('.//dd[@aria-label="description_text_value"]')
+            type = Text('.//dd[@aria-label="type_text_value"]')
+            content_type = Text('.//dd[@aria-label="content_type_text_value"]')
 
     @View.nested
     class capsules(View, AcsStackItem):
         """Class representing the Capsules stack item in the ACS drawer"""
 
         ROOT = (
-            '//div[(normalize-space(.)="Capsules")'
+            './/div[(normalize-space(.)="Capsules")'
             ' and contains(@class, "pf-v5-c-expandable-section")]'
         )
         title = OUIAText('expandable-smart-proxies-text')
         edit_capsules = Button(
-            locator='//button[contains(@aria-label, "edit-smart-proxies-pencil-edit")]'
+            locator='.//button[contains(@aria-label, "edit-smart-proxies-pencil-edit")]'
         )
 
         @View.nested
         class capsules_stack_content(View):
             """Class representing content of the Capsules stack item."""
 
-            ROOT = '//div[@id="showSmartProxies-content"]'
+            ROOT = './/div[@id="showSmartProxies-content"]'
 
             capsules_list = ItemsList(locator='.//ul[contains(@class, "pf-v5-c-list")]')
-            use_http_proxies = Text('//dd[@aria-label="useHttpProxies_value"]')
+            use_http_proxies = Text('.//dd[@aria-label="useHttpProxies_value"]')
 
     @View.nested
     class url_and_subpaths(View, AcsStackItem):
@@ -263,23 +263,23 @@ class RowDrawer(View):
         """
 
         ROOT = (
-            '//div[normalize-space(.)="URL and subpaths" '
+            './/div[normalize-space(.)="URL and subpaths" '
             'and contains(@class, "pf-v5-c-expandable-section")]'
         )
 
         title = OUIAText('expandable-url-paths-text')
         edit_url_and_subpaths = Button(
-            locator='//button[contains(@aria-label, "edit-urls-pencil-edit")]'
+            locator='.//button[contains(@aria-label, "edit-urls-pencil-edit")]'
         )
 
         @View.nested
         class url_and_subpaths_stack_content(View):
             """Class representing content of the URL and subpaths stack item."""
 
-            ROOT = '//div[@id="showUrlPaths-content"]'
+            ROOT = './/div[@id="showUrlPaths-content"]'
 
-            url = Text('//dd[@aria-label="url_text_value"]')
-            subpaths = Text('//dd[@aria-label="subpaths_text_value"]')
+            url = Text('.//dd[@aria-label="url_text_value"]')
+            subpaths = Text('.//dd[@aria-label="subpaths_text_value"]')
 
     @View.nested
     class credentials(View, AcsStackItem):
@@ -289,27 +289,27 @@ class RowDrawer(View):
         """
 
         ROOT = (
-            '//div[normalize-space(.)="Credentials" '
+            './/div[normalize-space(.)="Credentials" '
             'and contains(@class, "pf-v5-c-expandable-section")]'
         )
 
         title = OUIAText('expandable-credentials-text')
         edit_credentials = Button(
-            locator='//button[contains(@aria-label, "edit-credentials-pencil-edit")]'
+            locator='.//button[contains(@aria-label, "edit-credentials-pencil-edit")]'
         )
 
         @View.nested
         class credentials_stack_content(View):
             """Class representing content of the Credentials stack item."""
 
-            ROOT = '//div[@id="showCredentials-content"]'
+            ROOT = './/div[@id="showCredentials-content"]'
 
-            verify_ssl = Text('//dd[@aria-label="verifySSL_value"]')
-            ssl_ca_certificate = Text('//dd[@aria-label="sslCaCert_value"]')
-            ssl_client_certificate = Text('//dd[@aria-label="sslClientCert_value"]')
-            ssl_client_key = Text('//dd[@aria-label="sslClientKey_value"]')
-            username = Text('//dd[@aria-label="username_value"]')
-            password = Text('//dd[@aria-label="password_value"]')
+            verify_ssl = Text('.//dd[@aria-label="verifySSL_value"]')
+            ssl_ca_certificate = Text('.//dd[@aria-label="sslCaCert_value"]')
+            ssl_client_certificate = Text('.//dd[@aria-label="sslClientCert_value"]')
+            ssl_client_key = Text('.//dd[@aria-label="sslClientKey_value"]')
+            username = Text('.//dd[@aria-label="username_value"]')
+            password = Text('.//dd[@aria-label="password_value"]')
 
     @View.nested
     class products(View, AcsStackItem):
@@ -318,18 +318,18 @@ class RowDrawer(View):
         Present only if ACS is of type 'Simplified'.
         """
 
-        ROOT = '//div[normalize-space(.)="Products" and contains(@class, "pf-v5-c-expandable-section")]'
+        ROOT = './/div[normalize-space(.)="Products" and contains(@class, "pf-v5-c-expandable-section")]'
 
         title = OUIAText('expandable-products-text')
         edit_products = Button(
-            locator='//button[contains(@aria-label, "edit-products-pencil-edit")]'
+            locator='.//button[contains(@aria-label, "edit-products-pencil-edit")]'
         )
 
         @View.nested
         class products_stack_content(View):
             """Class representing content of the Products stack item."""
 
-            ROOT = '//div[@id="showProducts-content"]'
+            ROOT = './/div[@id="showProducts-content"]'
 
             products_list = ItemsList(locator='.//ul[contains(@class, "pf-v5-c-list")]')
 
@@ -337,17 +337,17 @@ class RowDrawer(View):
 class AlternateContentSourcesView(BaseLoggedInView):
     """Class that describes view of the Alternate Content Sources page."""
 
-    title = Text('//h1[contains(., "Alternate Content Sources")]')
-    error_message = Text('//div[contains(@aria-label, "Danger Alert")]')
-    blank_page = Text("//div[contains(@class, 'pf-v5-c-empty-state')]")
+    title = Text('.//h1[contains(., "Alternate Content Sources")]')
+    error_message = Text('.//div[contains(@aria-label, "Danger Alert")]')
+    blank_page = Text(".//div[contains(@class, 'pf-v5-c-empty-state')]")
 
     @View.nested
     class acs_drawer(Drawer):
         """Class that describes drawer of the Alternate Content Sources page"""
 
-        select_all = Checkbox(locator='//input[contains(@aria-label, "Select all")]')
+        select_all = Checkbox(locator='.//input[contains(@aria-label, "Select all")]')
         search_bar = SearchInput(locator='.//div[contains(@class, "pf-v5-c-input-group")]//input')
-        clear_search_btn = Button(locator='//button[@aria-label="Reset search"]')
+        clear_search_btn = Button(locator='.//button[@aria-label="Reset search"]')
         add_source = OUIAButton('create-acs')
         kebab_menu = Dropdown(
             locator='.//div[contains(@data-ouia-component-id, "acs-bulk-actions")]'

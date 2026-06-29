@@ -1,9 +1,7 @@
 from wait_for import wait_for
 from widgetastic.utils import ParametrizedLocator
 from widgetastic.widget import Text, View
-from widgetastic_patternfly import Tab
-from widgetastic_patternfly4.switch import Switch
-from widgetastic_patternfly5 import Button as PF5Button, Menu
+from widgetastic_patternfly5 import Button as PF5Button, Menu, Switch, Tab
 from widgetastic_patternfly5.ouia import Text as PF5OUIAText
 
 from airgun.exceptions import ReadOnlyWidgetError
@@ -97,7 +95,7 @@ class InventoryItemsView(Accordion):
 class CloudInventoryListView(BaseLoggedInView):
     """Main Red Hat Lightspeed Inventory Upload view."""
 
-    title = Text('//h1[normalize-space(.)="Red Hat Inventory"]')
+    title = Text('.//h1[normalize-space(.)="Red Hat Inventory"]')
     auto_update = Switch('.//label[@for="rh-cloud-switcher-allow_auto_inventory_upload"]')
     data_collection = DataCollectionMenu()
     obfuscate_hostnames = Switch('.//label[@for="rh-cloud-switcher-obfuscate_inventory_hostnames"]')
@@ -110,11 +108,11 @@ class CloudInventoryListView(BaseLoggedInView):
     auto_upload_desc = PF5OUIAText('text-enable-report')
     manual_upload_desc = PF5OUIAText('text-restart-button')
     dialog = Pf5ConfirmationDialog()
-    cloud_connector = PF5Button(locator='//button[normalize-space(.)="Configure cloud connector"]')
+    cloud_connector = PF5Button(locator='.//button[normalize-space(.)="Configure cloud connector"]')
     reconfigure_cloud_connector = PF5Button(
-        locator='//button[normalize-space(.)="Reconfigure cloud connector"]'
+        locator='.//button[normalize-space(.)="Reconfigure cloud connector"]'
     )
-    sync_status = PF5Button(locator='//button[normalize-space(.)="Sync all inventory status"]')
+    sync_status = PF5Button(locator='.//button[normalize-space(.)="Sync all inventory status"]')
     inventory_list = View.nested(InventoryItemsView)
 
     @property

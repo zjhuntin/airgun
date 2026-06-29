@@ -1,5 +1,5 @@
 from widgetastic.widget import Checkbox, Select, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SatTable, SearchableViewMixinPF4
 from airgun.widgets import (
@@ -13,9 +13,9 @@ from airgun.widgets import (
 class AnsibleVariablesView(BaseLoggedInView, SearchableViewMixinPF4):
     """Main Ansible Variables view"""
 
-    title = Text("//h1[contains(normalize-space(.),'Ansible Variables')]")
-    new_variable = Text("//a[contains(@href, '/ansible/ansible_variables/new')]")
-    total_variables = Text("//span[@class='pf-v5-c-menu-toggle__text']//b[2]")
+    title = Text(".//h1[contains(normalize-space(.),'Ansible Variables')]")
+    new_variable = Text(".//a[contains(@href, '/ansible/ansible_variables/new')]")
+    total_variables = Text(".//span[@class='pf-v5-c-menu-toggle__text']//b[2]")
     table = SatTable(
         './/table',
         column_widgets={
@@ -59,7 +59,7 @@ class NewAnsibleVariableView(BaseLoggedInView):
     hidden_value = Checkbox(id='ansible_variable_hidden_value')
 
     # 'Optional Input Validator' section
-    expand_optional_input_validator = Text("//h2[@class='expander collapsed']")
+    expand_optional_input_validator = Text(".//h2[@class='expander collapsed']")
     required = Checkbox(id='ansible_variable_required')
     validator_type = SatSelect(id='ansible_variable_validator_type')
     validator_rule = TextInput(id='ansible_variable_validator_rule')
@@ -69,14 +69,14 @@ class NewAnsibleVariableView(BaseLoggedInView):
     merge_overrides = Checkbox(id='ansible_variable_merge_overrides')
     merge_default = Checkbox(id='ansible_variable_merge_default')
     avoid_duplicates = Checkbox(id='ansible_variable_avoid_duplicates')
-    submit = Text('//input[@value="Submit"]')
-    cancel = Text("//a[contains(., text()='Cancel']")
+    submit = Text('.//input[@value="Submit"]')
+    cancel = Text(".//a[contains(., text()='Cancel']")
 
     @View.nested
     class matcher_section(View):
         """'Specify Matchers' section"""
 
-        add_matcher = Text("//a[contains(@class, 'add_nested_fields')]")
+        add_matcher = Text(".//a[contains(@class, 'add_nested_fields')]")
         params = MatcherTable(
             locator=".//table[@class='table white-header']",
             # new_row_bottom is passed to the __init__ method of the

@@ -1,5 +1,5 @@
 from widgetastic.widget import Checkbox, Select, Table, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import (
     BaseLoggedInView,
@@ -18,9 +18,9 @@ from airgun.widgets import (
 
 
 class JobTemplatesView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text("//h1[contains(., 'Job Templates')]")
-    import_template = Text("//a[normalize-space(.)='Import']")
-    new = Text("//a[contains(@href, '/job_templates/new')]")
+    title = Text(".//h1[contains(., 'Job Templates')]")
+    import_template = Text(".//a[normalize-space(.)='Import']")
+    new = Text(".//a[contains(@href, '/job_templates/new')]")
     table = Table(
         './/table',
         column_widgets={
@@ -46,7 +46,7 @@ class JobTemplateForeignInputSetItem(GenericRemovableWidgetItem):
 
 class JobTemplateCreateView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):
@@ -80,7 +80,7 @@ class JobTemplateCreateView(BaseLoggedInView):
 
         @View.nested
         class foreign_input_sets(RemovableWidgetsItemsListView):
-            ROOT = "//div[div[contains(@class, 'foreign_input_sets')]]"
+            ROOT = ".//div[div[contains(@class, 'foreign_input_sets')]]"
             ITEMS = ".//div[contains(@class, 'foreign_input_sets')]/following-sibling::div"
             ITEM_WIDGET_CLASS = JobTemplateForeignInputSetItem
             add_item_button = Text(".//a[@data-association='foreign_input_sets']")

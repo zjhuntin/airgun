@@ -1,5 +1,5 @@
 from widgetastic.widget import Text, View
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import (
     BaseLoggedInView,
@@ -13,7 +13,7 @@ from airgun.widgets import Search
 class FilesView(BaseLoggedInView):
     """Main Files view"""
 
-    title = Text("//h1[contains(., 'Files')]")
+    title = Text(".//h1[contains(., 'Files')]")
     table = SatTable('.//table', column_widgets={'Name': Text('./a'), 'Path': Text('./a')})
 
     search_box = Search()

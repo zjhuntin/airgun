@@ -8,7 +8,7 @@ from widgetastic.widget import (
     TextInput,
     View,
 )
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import (
     BaseLoggedInView,
@@ -39,7 +39,7 @@ class CreateDiscoveredReposView(View):
         locator='.//table',
         column_widgets={0: Checkbox(locator=".//input[@ng-change='itemSelected(urlRow)']")},
     )
-    create_action = Text("//button[contains(., 'Create Selected')]")
+    create_action = Text(".//button[contains(., 'Create Selected')]")
 
     def fill(self, values):
         """Select necessary repo/repos to be added to new or existing product"""
@@ -54,13 +54,13 @@ class CreateDiscoveredReposView(View):
 
 
 class ProductsTableView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h2[contains(., 'Products')]")
-    new = Text("//button[contains(@href, '/products/new')]")
+    title = Text(".//h2[contains(., 'Products')]")
+    new = Text(".//button[contains(@href, '/products/new')]")
     edit = Text(
-        "//td/a[contains(@ui-sref, 'product.repositories') and contains(@href, 'products')]"
+        ".//td/a[contains(@ui-sref, 'product.repositories') and contains(@href, 'products')]"
     )
-    repo_discovery = Text("//button[contains(.,'Repo Discovery')]")
-    actions = ActionsDropdown("//div[contains(@class, 'btn-group')]")
+    repo_discovery = Text(".//button[contains(.,'Repo Discovery')]")
+    actions = ActionsDropdown(".//div[contains(@class, 'btn-group')]")
     table = Table(
         './/table',
         column_widgets={
@@ -84,9 +84,9 @@ class ProductCreateView(BaseLoggedInView):
     ssl_client_cert = Select(id='ssl_client_cert_id')
     ssl_client_key = Select(id='ssl_client_key_id')
     sync_plan = Select(id='sync_plan_id')
-    create_sync_plan = Text("//a[contains(@ng-click, 'openSyncPlanModal')]")
+    create_sync_plan = Text(".//a[contains(@ng-click, 'openSyncPlanModal')]")
     description = TextInput(id='description')
-    submit = Text("//button[contains(@ng-click, 'handleSave')]")
+    submit = Text(".//button[contains(@ng-click, 'handleSave')]")
 
     @property
     def is_displayed(self):
@@ -101,7 +101,7 @@ class ProductCreateView(BaseLoggedInView):
 class ProductEditView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
     BREADCRUMB_LENGTH = 3
-    actions = ActionsDropdown("//div[contains(@class, 'btn-group')]")
+    actions = ActionsDropdown(".//div[contains(@class, 'btn-group')]")
     dialog = ConfirmationDialog()
 
     @property
@@ -141,7 +141,7 @@ class ProductEditView(BaseLoggedInView):
 
 class ProductRepoDiscoveryView(BaseLoggedInView, SearchableViewMixin):
     breadcrumb = BreadCrumb()
-    repo_type = Select(locator="//select[@ng-model='discovery.contentType']")
+    repo_type = Select(locator=".//select[@ng-model='discovery.contentType']")
     url = TextInput(id='urlToDiscover')
     registry_type = Select(id='registry_type')
     username = TextInput(id='upstreamUsername')
@@ -159,8 +159,8 @@ class ProductRepoDiscoveryView(BaseLoggedInView, SearchableViewMixin):
 
     @View.nested
     class discovered_repos(View):
-        discover_action = Text("//button[@type='submit' and contains(., 'Discover')]")
-        cancel_discovery = Text("//button[@ng-click='cancelDiscovery()']")
+        discover_action = Text(".//button[@type='submit' and contains(., 'Discover')]")
+        cancel_discovery = Text(".//button[@ng-click='cancelDiscovery()']")
         repos = CreateDiscoveredReposView()
 
         def before_fill(self, values=None):
@@ -184,26 +184,26 @@ class ProductRepoDiscoveryView(BaseLoggedInView, SearchableViewMixin):
         to be filled
         """
 
-        product_type = SatSelect(locator="//select[@ng-model='createRepoChoices.newProduct']")
+        product_type = SatSelect(locator=".//select[@ng-model='createRepoChoices.newProduct']")
         product_content = ConditionalSwitchableView(reference='product_type')
 
         @product_content.register('Existing Product')
         class ExistingProductForm(View):
             product_name = Select(
-                locator="//select[@ng-model='createRepoChoices.existingProductId']"
+                locator=".//select[@ng-model='createRepoChoices.existingProductId']"
             )
 
         @product_content.register('New Product')
         class NewProductForm(View):
             product_name = TextInput(id='productName')
             label = TextInput(id='productLabel')
-            gpg_key = Select(locator="//select[contains(@ng-model,'gpg_key_id')]")
+            gpg_key = Select(locator=".//select[contains(@ng-model,'gpg_key_id')]")
 
         serve_via_http = Checkbox(id='unprotected')
         verify_ssl = Checkbox(id='verify_ssl')
-        run_procedure = Text("//button[contains(., 'Run Repository Creation')]")
+        run_procedure = Text(".//button[contains(., 'Run Repository Creation')]")
         create_repos_table = Table(
-            locator='//table',
+            locator='.//table',
             column_widgets={
                 'Repository Name': TextInput(locator=".//input[@name='repo_name']"),
                 'Repository Label': TextInput(locator=".//input[@name='repo_label']"),
@@ -239,8 +239,8 @@ class ProductTaskDetailsView(TaskDetailsView):
 
 
 class ProductSyncPlanView(SyncPlanCreateView):
-    title = Text("//h4[contains(., 'New Sync Plan')]")
-    submit = Text("//button[contains(@ng-click, 'ok(syncPlan)')]")
+    title = Text(".//h4[contains(., 'New Sync Plan')]")
+    submit = Text(".//button[contains(@ng-click, 'ok(syncPlan)')]")
 
     @property
     def is_displayed(self):
@@ -250,10 +250,10 @@ class ProductSyncPlanView(SyncPlanCreateView):
 class ProductManageHttpProxy(BaseLoggedInView):
     """Represents Http proxy Management page for Products."""
 
-    title = Text("//h4[normalize-space(.)='HTTP proxy Management']")
+    title = Text(".//h4[normalize-space(.)='HTTP proxy Management']")
     http_proxy_policy = Select(id='http_proxy_policy')
     proxy_policy = ConditionalSwitchableView(reference='http_proxy_policy')
-    update = Text('//button[@ng-click="update()"]')
+    update = Text('.//button[@ng-click="update()"]')
 
     @proxy_policy.register('Use specific HTTP proxy')
     class ExistingProductForm(View):
@@ -267,11 +267,11 @@ class ProductManageHttpProxy(BaseLoggedInView):
 class ProductAdvancedSync(BaseLoggedInView):
     """Represents Advanced Sync page for Products."""
 
-    title = Text("//h4[normalize-space(.)='Advanced Sync']")
-    optimized = Text("//input[contains(@value, 'standard')]")
-    complete = Text("//input[contains(@value, 'skipMetadataCheck')]")
-    task = Text("//a[normalize-space(.)='Click to view task']")
-    sync = Text('//button[@ng-click="ok()"]')
+    title = Text(".//h4[normalize-space(.)='Advanced Sync']")
+    optimized = Text(".//input[contains(@value, 'standard')]")
+    complete = Text(".//input[contains(@value, 'skipMetadataCheck')]")
+    task = Text(".//a[normalize-space(.)='Click to view task']")
+    sync = Text('.//button[@ng-click="ok()"]')
 
     @property
     def is_displayed(self):
@@ -281,7 +281,7 @@ class ProductAdvancedSync(BaseLoggedInView):
 class ProductVerifyContentChecksum(BaseLoggedInView):
     """Represents Verify Content Checksum Alert page for Products."""
 
-    task_alert = Text("//a[normalize-space(.)='Click to monitor task progress.']")
+    task_alert = Text(".//a[normalize-space(.)='Click to monitor task progress.']")
 
     @property
     def is_displayed(self):

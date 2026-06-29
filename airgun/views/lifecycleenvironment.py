@@ -6,7 +6,7 @@ from widgetastic.widget import (
     TextInput,
     View,
 )
-from widgetastic_patternfly import BreadCrumb, Button
+from widgetastic_patternfly5 import BreadCrumb, Button
 
 from airgun.views.common import BaseLoggedInView, SatTab, SearchableViewMixin
 from airgun.widgets import (
@@ -19,22 +19,22 @@ from airgun.widgets import (
 
 
 class LCEView(BaseLoggedInView, ParametrizedView):
-    title = Text("//h2[contains(., 'Lifecycle Environment Paths')]")
+    title = Text(".//h2[contains(., 'Lifecycle Environment Paths')]")
     new_path = Text(
-        "//a[contains(@href, '/lifecycle_environments') "
+        ".//a[contains(@href, '/lifecycle_environments') "
         "and contains(@href, 'new') and contains(@class, 'btn-primary')]"
     )
     edit_parent_env = Text(
-        "//table[contains(@class, 'info-blocks')]//a[contains(@ui-sref, 'environment.details')]"
+        ".//table[contains(@class, 'info-blocks')]//a[contains(@ui-sref, 'environment.details')]"
     )
     parent_env_cvs_count = Text(
-        "//table[contains(@class, 'info-blocks')]//td[span[contains(., 'Content Views')]]/div"
+        ".//table[contains(@class, 'info-blocks')]//td[span[contains(., 'Content Views')]]/div"
     )
     parent_env_products_count = Text(
-        "//table[contains(@class, 'info-blocks')]//td[span[contains(., 'Products')]]/div"
+        ".//table[contains(@class, 'info-blocks')]//td[span[contains(., 'Products')]]/div"
     )
     parent_env_products_errata = Text(
-        "//table[contains(@class, 'info-blocks')]//td[span[contains(., 'Errata')]]/div"
+        ".//table[contains(@class, 'info-blocks')]//td[span[contains(., 'Errata')]]/div"
     )
 
     @property
@@ -49,7 +49,7 @@ class LCEView(BaseLoggedInView, ParametrizedView):
             ".//div[@ng-repeat='path in paths'][table//th/a[normalize-space(.)='{lce_name}']]"
         )
         PARAMETERS = ('lce_name',)
-        LAST_ENV = "//div[@ng-repeat='path in paths']//table//th[last()]"
+        LAST_ENV = ".//div[@ng-repeat='path in paths']//table//th[last()]"
         current_env = Text(ParametrizedLocator(".//a[normalize-space(.)='{lce_name}']"))
         envs_table = Table(locator='.//table')
         new_child = Text(".//a[contains(@href, '/lifecycle_environments/')]")
@@ -60,7 +60,7 @@ class LCEView(BaseLoggedInView, ParametrizedView):
             LCE names (last available environment is used as a name). It's
             required for :meth:`read` to work properly.
             """
-            return [(element.text,) for element in browser.elements(cls.LAST_ENV)]
+            return [(browser.text(element),) for element in browser.elements(cls.LAST_ENV)]
 
         def read(self):
             """Returns content views and count hosts count per each available
@@ -75,9 +75,11 @@ class LCEView(BaseLoggedInView, ParametrizedView):
             """
             result = {}
             available_envs = self.envs_table.headers[1:]
-            lce_metric_names = [row[0].text for row in self.envs_table]
+            lce_metric_names = [self.browser.text(row[0]) for row in self.envs_table]
             for column_name in available_envs:
-                metric_values = (int(row[column_name].text) for row in self.envs_table)
+                metric_values = (
+                    int(self.browser.text(row[column_name])) for row in self.envs_table
+                )
                 result[column_name] = {}
                 for row_name in lce_metric_names:
                     result[column_name][row_name] = next(metric_values)
@@ -89,7 +91,7 @@ class LCECreateView(BaseLoggedInView):
     name = TextInput(id='name')
     label = TextInput(id='label')
     description = TextInput(id='description')
-    submit = Text("//button[contains(@ng-click, 'handleSave')]")
+    submit = Text(".//button[contains(@ng-click, 'handleSave')]")
 
     @property
     def is_displayed(self):
@@ -103,7 +105,7 @@ class LCECreateView(BaseLoggedInView):
 
 class LCEEditView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
-    remove = Button('Remove Environment')
+    remove = Button(locator=".//button[normalize-space(.)='Remove Environment']")
 
     @property
     def is_displayed(self):

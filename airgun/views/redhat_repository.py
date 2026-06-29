@@ -210,13 +210,13 @@ class RepositoryCategoryView(View):
 class RedHatRepositoriesView(BaseLoggedInView):
     """The main Red Hat repositories view."""
 
-    title = Text("//h1[contains(., 'Red Hat Repositories')]")
+    title = Text(".//h1[contains(., 'Red Hat Repositories')]")
     search_category = RepositorySearchCategory(".//div[button[@id='search-list-select']]")
     search_box = TextInput(
-        locator='//*[@id="redhatRepositoriesPage"]//following::input[@aria-label="Search input"]'
+        locator='.//*[@id="redhatRepositoriesPage"]//following::input[@aria-label="Search input"]'
     )
     search_button = Text(
-        '//*[@id="redhatRepositoriesPage"]//following::button[@aria-label="Search"]'
+        './/*[@id="redhatRepositoriesPage"]//following::button[@aria-label="Search"]'
     )
     search_types = RepositorySearchTypes(".//div[button[@data-id='formControlsSelectMultiple']]")
     search_by_filter_type = RepositorySearchTypes(".//div[button[@aria-owns='bs-select-2']]")
@@ -225,12 +225,12 @@ class RedHatRepositoriesView(BaseLoggedInView):
 
     @View.nested
     class available(RepositoryCategoryView):
-        ROOT = "//div[contains(@class, 'available-repositories-container')]"
+        ROOT = ".//div[contains(@class, 'available-repositories-container')]"
         ITEM_WIDGET = AvailableRepositorySetWidget
 
     @View.nested
     class enabled(RepositoryCategoryView):
-        ROOT = "//div[contains(@class, 'enabled-repositories-container')]"
+        ROOT = ".//div[contains(@class, 'enabled-repositories-container')]"
         ITEM_WIDGET = EnabledRepositoryWidget
 
     def search(self, value, category='Available', types=None):

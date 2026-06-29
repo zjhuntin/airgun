@@ -1,26 +1,24 @@
+from widgetastic.exceptions import NoSuchElementException
 from widgetastic.widget import Checkbox, ParametrizedView, Text, View
-from widgetastic_patternfly4 import (
-    Button,
-    Dropdown,
-    ExpandableTable,
-    Pagination,
-    Radio,
-    Select,
-)
-from widgetastic_patternfly4.ouia import (
-    Alert as OUIAAlert,
-)
+from widgetastic.xpath import quote
 from widgetastic_patternfly5 import (
     Alert as PF5Alert,
+    Button,
     Button as PF5Button,
+    Dropdown,
     Dropdown as PF5Dropdown,
+    ExpandableTable,
     Menu as PF5Menu,
     Modal as PF5Modal,
+    Pagination,
     Pagination as PF5Pagination,
+    Radio,
     Radio as PF5Radio,
+    Select,
     Select as PF5Select,
 )
 from widgetastic_patternfly5.ouia import (
+    Alert as OUIAAlert,
     Button as PF5OUIAButton,
     Dropdown as PF5OUIADropdown,
     FormSelect as PF5OUIAFormSelect,
@@ -52,7 +50,7 @@ class MenuToggleDropdownInTable(PF5Dropdown):
     ROOT = f'{BUTTON_LOCATOR}/..'
     ITEMS_LOCATOR = ".//ul[contains(@class, 'pf-v5-c-menu__list')]/li"
     ITEM_LOCATOR = (
-        "//*[contains(@class, 'pf-v5-c-menu__item') and .//*[contains(normalize-space(.), {})]]"
+        ".//*[contains(@class, 'pf-v5-c-menu__item') and .//*[contains(normalize-space(.), {})]]"
     )
 
 
@@ -60,7 +58,7 @@ class AllHostsSelect(Select):
     BUTTON_LOCATOR = ".//button[@aria-label='Options menu']"
     ITEMS_LOCATOR = ".//ul[contains(@class, 'pf-c-select__menu')]/li[contains(@class, 'pf-c-select__menu-wrapper')]"
     ITEM_LOCATOR = (
-        '//*[contains(@class, "pf-c-select__menu-item") and contains(normalize-space(.), {})]'
+        './/*[contains(@class, "pf-c-select__menu-item") and contains(normalize-space(.), {})]'
     )
     SELECTED_ITEM_LOCATOR = ".//span[contains(@class, 'ins-c-conditional-filter')]"
     TEXT_LOCATOR = ".//div[contains(@class, 'pf-c-select') and child::button]"
@@ -75,14 +73,28 @@ class AllHostsMenu(PF5Menu):
 class CVESelect(Select):
     BUTTON_LOCATOR = './/button[@aria-label="Options menu"]'
     ITEMS_LOCATOR = './/ul[contains(@class, "pf-v5-c-select__menu")]/li'
-    ITEM_LOCATOR = '//*[contains(@class, "pf-v5-c-select__menu-item") and .//*[contains(normalize-space(.), {})]]'
+    ITEM_LOCATOR = './/*[contains(@class, "pf-v5-c-select__menu-item") and .//*[contains(normalize-space(.), {})]]'
     SELECTED_ITEM_LOCATOR = './/span[contains(@class, "ins-c-conditional-filter")]'
     TEXT_LOCATOR = './/div[contains(@class, "pf-v5-c-select") and child::button]'
     DEFAULT_LOCATOR = './/div[contains(@class, "pf-v5-c-select") and @data-ouia-component-id="select-content-view"]'
 
+    def item_element(self, item, close=True, **kwargs):
+        """Fall back to root_browser for portaled PF5 select menus."""
+        try:
+            return super().item_element(item, close, **kwargs)
+        except Exception:
+            pass
+        self.open()
+        result = self.root_browser.element(
+            self.ITEM_LOCATOR.format(quote(item)), **kwargs
+        )
+        if close:
+            self.close()
+        return result
+
 
 class AllHostsTableView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text('//h1[normalize-space(.)="Hosts"]')
+    title = Text('.//h1[normalize-space(.)="Hosts"]')
 
     legacy_kebab = PF5Dropdown(locator='.//div[@id="legacy-ui-kebab"]')
     export = PF5OUIAButton('export-hosts-button')
@@ -97,17 +109,17 @@ class AllHostsTableView(BaseLoggedInView, SearchableViewMixinPF4):
         locator='.//div[@data-ouia-component-id="hosts-index-actions-kebab"]'
     )
     bulk_actions_manage_vulnerability_analysis_menu = PF5Menu(
-        locator='//li[contains(@class, "pf-v5-c-menu__list-item")]//button[span/span[text()="Manage vulnerability analysis"]]/following-sibling::div[contains(@class, "pf-v5-c-menu")]'
+        locator='.//li[contains(@class, "pf-v5-c-menu__list-item")]//button[span/span[text()="Manage vulnerability analysis"]]/following-sibling::div[contains(@class, "pf-v5-c-menu")]'
     )
     bulk_actions_manage_content_menu = PF5Menu(
-        locator='//li[contains(@class, "pf-v5-c-menu__list-item")]//button[span/span[text()="Manage content"]]/following-sibling::div[contains(@class, "pf-v5-c-menu")]'
+        locator='.//li[contains(@class, "pf-v5-c-menu__list-item")]//button[span/span[text()="Manage content"]]/following-sibling::div[contains(@class, "pf-v5-c-menu")]'
     )
     bulk_actions_change_associations_menu = PF5Menu(
-        locator='//li[contains(@class, "pf-v5-c-menu__list-item")]//button[span/span[text()="Change associations"]]/following-sibling::div[contains(@class, "pf-v5-c-menu")]'
+        locator='.//li[contains(@class, "pf-v5-c-menu__list-item")]//button[span/span[text()="Change associations"]]/following-sibling::div[contains(@class, "pf-v5-c-menu")]'
     )
 
-    table_loading = Text('//h5[normalize-space(.)="Loading"]')
-    no_results = Text('//h5[normalize-space(.)="No Results"]')
+    table_loading = Text('.//h5[normalize-space(.)="Loading"]')
+    no_results = Text('.//h5[normalize-space(.)="No Results"]')
     manage_columns = PF5Button('Manage columns')
     table = PF5OUIATable(
         component_id='hosts-index-table',
@@ -139,10 +151,10 @@ class HostDeleteDialog(View):
 
     ROOT = './/div[@data-ouia-component-id="app-confirm-modal"]'
 
-    title = Text("//span[normalize-space(.)='Delete host?']")
+    title = Text(".//span[normalize-space(.)='Delete host?']")
 
-    confirm_delete = Button(locator='//button[normalize-space(.)="Delete"]')
-    cancel_delete = Button(locator='//button[normalize-space(.)="Cancel"]')
+    confirm_delete = Button(locator='.//button[normalize-space(.)="Delete"]')
+    cancel_delete = Button(locator='.//button[normalize-space(.)="Cancel"]')
 
     @property
     def is_displayed(self):
@@ -162,8 +174,8 @@ class BuildManagementDialog(View):
         locator='.//input[@data-ouia-component-id="rebuild-host-radio"]'
     )
 
-    confirm = Button(locator='//button[normalize-space(.)="Confirm"]')
-    cancel = Button(locator='//button[normalize-space(.)="Cancel"]')
+    confirm = Button(locator='.//button[normalize-space(.)="Confirm"]')
+    cancel = Button(locator='.//button[normalize-space(.)="Cancel"]')
 
     @property
     def is_displayed(self):
@@ -175,11 +187,11 @@ class BulkHostDeleteDialog(View):
 
     ROOT = './/div[@id="bulk-delete-hosts-modal"]'
 
-    title = Text("//span[normalize-space(.)='Delete hosts?']")
+    title = Text(".//span[normalize-space(.)='Delete hosts?']")
     confirm_checkbox = Checkbox(locator='.//input[@id="dire-warning-checkbox"]')
 
-    confirm_delete = Button(locator='//button[normalize-space(.)="Delete"]')
-    cancel_delete = Button(locator='//button[normalize-space(.)="Cancel"]')
+    confirm_delete = Button(locator='.//button[normalize-space(.)="Delete"]')
+    cancel_delete = Button(locator='.//button[normalize-space(.)="Cancel"]')
 
     @property
     def is_displayed(self):
@@ -191,13 +203,13 @@ class HostgroupDialog(View):
 
     ROOT = './/div[@id="bulk-reassign-hg-modal"]'
 
-    title = Text("//span[normalize-space(.)='Change host group']")
+    title = Text(".//span[normalize-space(.)='Change host group']")
     hostgroup_dropdown = AllHostsSelect(
         locator='.//div[contains(@class, "pf-c-select") and @data-ouia-component-id="select-host-group"]'
     )
 
-    save_button = Button(locator='//button[normalize-space(.)="Save"]')
-    cancel_button = Button(locator='//button[normalize-space(.)="Cancel"]')
+    save_button = Button(locator='.//button[normalize-space(.)="Save"]')
+    cancel_button = Button(locator='.//button[normalize-space(.)="Cancel"]')
 
     @property
     def is_displayed(self):
@@ -237,9 +249,9 @@ class ManageCVEModal(PF5Modal):
 
     ROOT = './/div[@data-ouia-component-id="bulk-change-host-cv-modal"]'
 
-    title = Text("//span[normalize-space(.)='Edit content view environments']")
-    save_btn = Button(locator='//button[normalize-space(.)="Save"]')
-    cancel_btn = Button(locator='//button[normalize-space(.)="Cancel"]')
+    title = Text(".//span[normalize-space(.)='Edit content view environments']")
+    save_btn = Button(locator='.//button[normalize-space(.)="Save"]')
+    cancel_btn = Button(locator='.//button[normalize-space(.)="Cancel"]')
     content_source_select = CVESelect()
     lce_selector = ParametrizedView.nested(PF5LCESelectorGroup)
 
@@ -258,11 +270,11 @@ class ManagePackagesModal(PF5Modal):
 
     title = './/h2[@data-ouia-component-type="PF4/Title"]'
     close_btn = PF5Button(
-        locator='//button[@class="pf-v5-c-button pf-m-plain pf-v5-c-wizard__close"]'
+        locator='.//button[@class="pf-v5-c-button pf-m-plain pf-v5-c-wizard__close"]'
     )
-    cancel_btn = PF5Button(locator='//button[normalize-space(.)="Cancel"]')
-    back_btn = PF5Button(locator='//button[normalize-space(.)="Back"]')
-    next_btn = PF5Button(locator='//button[normalize-space(.)="Next"]')
+    cancel_btn = PF5Button(locator='.//button[normalize-space(.)="Cancel"]')
+    back_btn = PF5Button(locator='.//button[normalize-space(.)="Back"]')
+    next_btn = PF5Button(locator='.//button[normalize-space(.)="Next"]')
 
     @View.nested
     class select_action(WizardStepView):
@@ -276,7 +288,7 @@ class ManagePackagesModal(PF5Modal):
 
     @View.nested
     class upgrade_packages(WizardStepView):
-        locator_prefix = '//div[contains(., "Upgrade packages")]/descendant::'
+        locator_prefix = './/div[contains(., "Upgrade packages")]/descendant::'
 
         expander = Text('.//button[contains(.,"Upgrade packages")]')
         content_text = Text('.//div[@class="pf-v5-c-content"]')
@@ -368,7 +380,7 @@ class ManagePackagesModal(PF5Modal):
             './/button[@class="pf-v5-c-tree-view__node" and contains(.,"Packages to")]'
         )
         expanded_package_list = ItemsList(
-            locator='//ul[@class="pf-v5-c-tree-view__list" and @role="tree"][1]'
+            locator='.//ul[@class="pf-v5-c-tree-view__list" and @role="tree"][1]'
         )
         # using wording manage instead of install and update, because in UI
         # it changes based on the selected action but generally it looks the same
@@ -384,10 +396,10 @@ class ManagePackagesModal(PF5Modal):
         )
         edit_selected_hosts = Button('.//button[@aria-label="Edit host selection"]')
         manage_via_dropdown = PF5Dropdown(
-            locator='//div[@data-ouia-component-id="bulk-packages-wizard-dropdown"]'
+            locator='.//div[@data-ouia-component-id="bulk-packages-wizard-dropdown"]'
         )
         finish_package_management_btn = PF5Button(
-            locator='//*[@data-ouia-component-type="PF5/Button" and (normalize-space(.)="Install" or normalize-space(.)="Upgrade" or normalize-space(.)="Remove")]'
+            locator='.//*[@data-ouia-component-type="PF5/Button" and (normalize-space(.)="Install" or normalize-space(.)="Upgrade" or normalize-space(.)="Remove")]'
         )
 
     @property
@@ -405,11 +417,11 @@ class ManageErrataModal(PF5Modal):
 
     title = './/h2[@data-ouia-component-type="PF4/Title"]'
     close_btn = PF5Button(
-        locator='//button[@class="pf-v5-c-button pf-m-plain pf-v5-c-wizard__close"]'
+        locator='.//button[@class="pf-v5-c-button pf-m-plain pf-v5-c-wizard__close"]'
     )
-    cancel_btn = PF5Button(locator='//button[normalize-space(.)="Cancel"]')
-    back_btn = PF5Button(locator='//button[normalize-space(.)="Back"]')
-    next_btn = PF5Button(locator='//button[normalize-space(.)="Next"]')
+    cancel_btn = PF5Button(locator='.//button[normalize-space(.)="Cancel"]')
+    back_btn = PF5Button(locator='.//button[normalize-space(.)="Back"]')
+    next_btn = PF5Button(locator='.//button[normalize-space(.)="Next"]')
 
     @View.nested
     class select_errata(WizardStepView):
@@ -468,7 +480,7 @@ class ManageErrataModal(PF5Modal):
             './/button[@class="pf-v5-c-tree-view__node" and contains(.,"Errata to")]'
         )
         expanded_errata_list = ItemsList(
-            locator='//ul[@class="pf-v5-c-tree-view__list" and @role="tree"][1]'
+            locator='.//ul[@class="pf-v5-c-tree-view__list" and @role="tree"][1]'
         )
 
         number_of_errata_to_manage = Text(
@@ -482,11 +494,11 @@ class ManageErrataModal(PF5Modal):
         )
         edit_selected_hosts = Button('.//button[@aria-label="Edit host selection"]')
         manage_via_dropdown = PF5Dropdown(
-            locator='//div[@data-ouia-component-id="bulk-errata-wizard-dropdown"]'
+            locator='.//div[@data-ouia-component-id="bulk-errata-wizard-dropdown"]'
         )
 
         finish_errata_management_btn = PF5Button(
-            locator='//*[@data-ouia-component-type="PF5/Button" and normalize-space(.)="Apply"]'
+            locator='.//*[@data-ouia-component-type="PF5/Button" and normalize-space(.)="Apply"]'
         )
 
     @property
@@ -498,12 +510,12 @@ class RepositorySetsMenu(PF5Dropdown):
     IS_ALWAYS_OPEN = False
     BUTTON_LOCATOR = ".//button[contains(@class, 'pf-v5-c-menu-toggle')]"
     DEFAULT_LOCATOR = PF5Button(
-        locator='//td[@data-label="Status"]/button[contains(@class,"pf-v5-c-menu-toggle")]'
+        locator='.//td[@data-label="Status"]/button[contains(@class,"pf-v5-c-menu-toggle")]'
     )
     ROOT = f'{BUTTON_LOCATOR}/..'
     ITEMS_LOCATOR = ".//ul[contains(@class, 'pf-v5-c-menu__list')]/li"
     ITEM_LOCATOR = (
-        '//*[contains(@class, "pf-v5-c-menu__item") and .//*[contains(normalize-space(.), {})]]'
+        './/*[contains(@class, "pf-v5-c-menu__item") and .//*[contains(normalize-space(.), {})]]'
     )
 
 
@@ -528,9 +540,9 @@ class ManageRepositorySetsModal(PF5Modal):
     )
 
     close_btn = PF5Button(locator='.//div[@class="pf-v5-c-wizard__close"]')
-    cancel_btn = PF5Button(locator='//button[normalize-space(.)="Cancel"]')
-    back_btn = PF5Button(locator='//button[normalize-space(.)="Back"]')
-    next_btn = PF5Button(locator='//button[normalize-space(.)="Next"]')
+    cancel_btn = PF5Button(locator='.//button[normalize-space(.)="Cancel"]')
+    back_btn = PF5Button(locator='.//button[normalize-space(.)="Back"]')
+    next_btn = PF5Button(locator='.//button[normalize-space(.)="Next"]')
 
     @View.nested
     class select_repository_sets(WizardStepView):
@@ -545,7 +557,7 @@ class ManageRepositorySetsModal(PF5Modal):
         search = Button(locator=f'{locator_prefix}button[@aria-label="Search"]')
 
         no_change_status_dropdown = PF5Button(
-            locator='//td[@data-label="Status"]/button[contains(@class,"pf-v5-c-menu-toggle")]'
+            locator='.//td[@data-label="Status"]/button[contains(@class,"pf-v5-c-menu-toggle")]'
         )
 
         status_options = PF5Dropdown(
@@ -553,7 +565,7 @@ class ManageRepositorySetsModal(PF5Modal):
         )
 
         table = ExpandableTable(
-            locator='//div[@data-ouia-component-id="bulk-repo-sets-wizard-modal"]//table[@data-ouia-component-id="table"]',
+            locator='.//div[@data-ouia-component-id="bulk-repo-sets-wizard-modal"]//table[@data-ouia-component-id="table"]',
             column_widgets={
                 0: PF5Button(locator='.//button[@aria-label="Details"]'),
                 1: Checkbox(locator='.//input[@type="checkbox"]'),
@@ -599,7 +611,7 @@ class ManageRepositorySetsModal(PF5Modal):
             './/button[@data-ouia-component-id="brsw-review-step-edit-btn"]'
         )
         set_content_overrides = Button(
-            locator='//button[@type="submit" and @data-ouia-component-id="bulk-repo-sets-wizard-finish-button"]'
+            locator='.//button[@type="submit" and @data-ouia-component-id="bulk-repo-sets-wizard-finish-button"]'
         )
 
     @property
@@ -639,7 +651,7 @@ class MenuToggleSelect(PF5Select):
     ROOT = f'{BUTTON_LOCATOR}/..'
     ITEMS_LOCATOR = ".//ul[contains(@class, 'pf-v5-c-menu__list')]/li"
     ITEM_LOCATOR = (
-        "//*[contains(@class, 'pf-v5-c-menu__item') and .//*[contains(normalize-space(.), {})]]"
+        ".//*[contains(@class, 'pf-v5-c-menu__item') and .//*[contains(normalize-space(.), {})]]"
     )
 
 
@@ -754,7 +766,7 @@ class ChangeHostCollectionsModal(PF5Modal):
     remove_from_host_collections_radio = PF5Radio(id='radio-remove-action')
 
     search_input = SearchInput(
-        locator='//div[@id="bulk-update-host-collections-modal"]//input[@aria-label="Search input"]'
+        locator='.//div[@id="bulk-update-host-collections-modal"]//input[@aria-label="Search input"]'
     )
     table = PF5OUIATable(
         component_id='table',
@@ -787,11 +799,11 @@ class ManageTracesModal(PF5Modal):
 
     searchbar_dropdown = PF5OUIADropdown('selection-checkbox')
     search_input = SearchInput(
-        locator='//div[@id="bulk-manage-traces-modal"]//input[@aria-label="Search input"]'
+        locator='.//div[@id="bulk-manage-traces-modal"]//input[@aria-label="Search input"]'
     )
-    no_results = Text('//h5[normalize-space(.)="No Results"]')
+    no_results = Text('.//h5[normalize-space(.)="No Results"]')
 
-    modal_alert = PF5Alert(locator='//div[contains(@class, "pf-v5-c-alert pf-m-inline")]')
+    modal_alert = PF5Alert(locator='.//div[contains(@class, "pf-v5-c-alert pf-m-inline")]')
 
     table = PF5OUIATable(
         component_id='table',
@@ -808,7 +820,7 @@ class ManageTracesModal(PF5Modal):
 
     close_btn = PF5OUIAButton('bulk-manage-traces-modal-ModalBoxCloseButton')
     restart_btn = PF5Button(
-        locator='//button[normalize-space(.)="Restart" or normalize-space(.)="Reboot hosts"]'
+        locator='.//button[normalize-space(.)="Restart" or normalize-space(.)="Reboot hosts"]'
     )
     cancel_btn = PF5OUIAButton('bulk-manage-traces-modal-cancel-button')
 

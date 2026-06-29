@@ -1,13 +1,13 @@
 from widgetastic.widget import Table, Text, TextInput
-from widgetastic_patternfly import BreadCrumb
+from widgetastic_patternfly5 import BreadCrumb
 
 from airgun.views.common import BaseLoggedInView, SearchableViewMixinPF4
 from airgun.widgets import ActionsDropdown
 
 
 class ComputeProfilesView(BaseLoggedInView, SearchableViewMixinPF4):
-    title = Text('//*[(self::h1 or self::h5) and normalize-space(.)="Compute Profiles"]')
-    new = Text('//a[normalize-space(.)="Create Compute Profile"]')
+    title = Text('.//*[(self::h1 or self::h5) and normalize-space(.)="Compute Profiles"]')
+    new = Text('.//a[normalize-space(.)="Create Compute Profile"]')
     table = Table(
         './/table',
         column_widgets={
@@ -24,7 +24,7 @@ class ComputeProfilesView(BaseLoggedInView, SearchableViewMixinPF4):
 class ComputeProfileCreateView(BaseLoggedInView):
     breadcrumb = BreadCrumb()
     name = TextInput(locator=".//input[@id='compute_profile_name']")
-    submit = Text('//input[@name="commit"]')
+    submit = Text('.//input[@name="commit"]')
 
     @property
     def is_displayed(self):

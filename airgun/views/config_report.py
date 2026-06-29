@@ -1,11 +1,11 @@
 from widgetastic.widget import Text
-from widgetastic_patternfly import BreadCrumb, Button
+from widgetastic_patternfly5 import BreadCrumb, Button
 
 from airgun.views.common import BaseLoggedInView, SatTable, SearchableViewMixin
 
 
 class ConfigReportsView(BaseLoggedInView, SearchableViewMixin):
-    title = Text("//h1[normalize-space(.)='Reports']")
+    title = Text(".//h1[normalize-space(.)='Reports']")
     export = Button('Export')
     table = SatTable(
         './/table',

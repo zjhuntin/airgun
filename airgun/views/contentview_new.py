@@ -1,8 +1,14 @@
 from wait_for import wait_for
 from widgetastic.utils import ParametrizedLocator
 from widgetastic.widget import Checkbox, ParametrizedView, Text, TextInput, View
-from widgetastic_patternfly import BreadCrumb, Tab
-from widgetastic_patternfly5 import Alert as PF5Alert, Button, Modal, Radio as PF5Radio
+from widgetastic_patternfly5 import (
+    Alert as PF5Alert,
+    BreadCrumb,
+    Button,
+    Modal,
+    Radio as PF5Radio,
+    Tab,
+)
 from widgetastic_patternfly5.ouia import (
     Button as PF5Button,
     Dropdown as PF5Dropdown,
@@ -97,11 +103,11 @@ class ContentViewCreateView(BaseLoggedInView):
     submit = PF5Button(component_id='create-content-view-form-submit')
     cancel = PF5Button(component_id='create-content-view-form-cancel')
 
-    component_tile = Text('//div[contains(@id, "component")]')
+    component_tile = Text('.//div[contains(@id, "component")]')
     solve_dependencies = Checkbox(id='dependencies')
     import_only = Checkbox(id='importOnly')
-    composite_tile = Text('//div[contains(@id, "composite")]')
-    rolling_tile = Text('//div[contains(@id, "rolling")]')
+    composite_tile = Text('.//div[contains(@id, "composite")]')
+    rolling_tile = Text('.//div[contains(@id, "rolling")]')
     auto_publish = Checkbox(id='autoPublish')
 
     @property
@@ -135,7 +141,7 @@ class ContentViewEditView(BaseLoggedInView):
     @View.nested
     class details(Tab):
         TAB_LOCATOR = ParametrizedLocator(
-            '//button[@data-ouia-component-id="routed-tabs-tab-details"]'
+            './/button[@data-ouia-component-id="routed-tabs-tab-details"]'
         )
         name = EditableEntry(name='Name')
         label = ReadOnlyEntry(name='Label')
@@ -148,7 +154,7 @@ class ContentViewEditView(BaseLoggedInView):
     @View.nested
     class versions(Tab):
         TAB_LOCATOR = ParametrizedLocator(
-            '//button[@data-ouia-component-id="routed-tabs-tab-versions"]'
+            './/button[@data-ouia-component-id="routed-tabs-tab-versions"]'
         )
         searchbox = PF4Search()
         table = PatternflyTable(
@@ -181,7 +187,7 @@ class ContentViewEditView(BaseLoggedInView):
     @View.nested
     class content_views(Tab):
         TAB_LOCATOR = ParametrizedLocator(
-            '//button[@data-ouia-component-id="routed-tabs-tab-contentviews"]'
+            './/button[@data-ouia-component-id="routed-tabs-tab-contentviews"]'
         )
 
         resources = View.nested(ContentViewAddResourcesView)
@@ -189,14 +195,14 @@ class ContentViewEditView(BaseLoggedInView):
     @View.nested
     class repositories(Tab):
         TAB_LOCATOR = ParametrizedLocator(
-            '//button[@data-ouia-component-id="routed-tabs-tab-repositories"]'
+            './/button[@data-ouia-component-id="routed-tabs-tab-repositories"]'
         )
         resources = View.nested(NewAddRemoveResourcesView)
 
     @View.nested
     class filters(Tab):
         TAB_LOCATOR = ParametrizedLocator(
-            '//button[@data-ouia-component-id="routed-tabs-tab-filters"]'
+            './/button[@data-ouia-component-id="routed-tabs-tab-filters"]'
         )
         new_filter = PF5Button(component_id='create-filter-button')
         searchbox = PF4Search()
@@ -270,8 +276,8 @@ class ContentViewVersionPromoteView(Modal):
 
     description = Text('.//h2[@data-ouia-component-id="description-text-value"]')
     lce_selector = ParametrizedView.nested(PF5LCECheckSelectorGroup)
-    promote_btn = Button(locator='//button[normalize-space(.)="Promote"]')
-    cancel_btn = Button(locator='//button[normalize-space(.)="Cancel"]')
+    promote_btn = Button(locator='.//button[normalize-space(.)="Promote"]')
+    cancel_btn = Button(locator='.//button[normalize-space(.)="Cancel"]')
 
 
 class ContentViewVersionDetailsView(BaseLoggedInView):
