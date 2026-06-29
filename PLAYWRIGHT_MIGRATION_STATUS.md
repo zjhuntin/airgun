@@ -311,6 +311,68 @@ We built a `Dockerfile.playwright` and a `Jenkinsfile.playwright` for running te
 
 ---
 
+## Known Risks Ahead
+
+Beyond the ACE editor bug and the untested complex views, a code-level audit identified several patterns that are likely to cause failures as testing expands. These are problems we have not hit yet but expect to.
+
+### Timing: `time.sleep()` used as a synchronization mechanism
+
+There are 37 `time.sleep()` calls across 12 entity files and `widgets.py`. These exist because `ensure_page_safe()` does not cover every kind of UI state change — it checks jQuery, AJAX, Angular, and spinners, but not React re-renders, dropdown animations, or table reloads.
+
+Under Selenium, these sleeps were usually long enough because Selenium itself added latency. Playwright is faster, so two things will happen: some sleeps will be too short (the UI is not ready when the sleep ends), and others will be unnecessarily long (wasting test time waiting for something that finished instantly).
+
+The worst cases:
+
+- **`job_invocation.py`** — Three methods use `time.sleep(3)` both before and after constructing a view object, with no condition-based wait. The view may be instantiated before the page has rendered.
+- **`contentview_new.py`** — `time.sleep(5)` with a comment saying it waits for a "Loading" widget. Should be replaced with a wait for the loading indicator to disappear.
+- **`host.py`** and **`host_new.py`** — Multiple `sleep(2)` and `sleep(3)` calls guarding form interactions and table reads after search.
+- **`SearchInput.fill()`** in `widgets.py` — Hardcoded 1-second sleep before pressing Enter and 3-second sleep after, to work around a debounce bug (BZ#2140636). Neither sleep is tied to actual DOM state.
+
+The fix for each of these is the same: replace the sleep with `wait_for(lambda: <condition>, timeout=<seconds>)`. But each one requires figuring out what the right condition is for that specific interaction.
+
+### Timing: ActionsDropdown animation race
+
+`ActionsDropdown.open()` checks whether the dropdown is open by reading CSS classes (`open` or `pf-m-expanded`), then the `items` property immediately queries the dropdown menu's DOM children. Under Playwright, the click that opens the dropdown and the CSS class check can complete before the dropdown animation finishes rendering the menu items. The `select` method is worse — it calls `open()`, reads items, closes, then opens again and clicks. Under Playwright's speed, the second open can fire before the first close completes.
+
+This affects virtually every entity in the codebase. Any test that uses a kebab menu, an actions dropdown, or a bulk action menu could hit this.
+
+### Timing: ContextSelector (org/location switching)
+
+`ContextSelector.select_org()` and `select_loc()` click the selector, then immediately query for the target organization or location in the dropdown. There is no wait for the dropdown menu to render. This runs at the start of almost every test session, so if it fails, it fails early and loudly.
+
+### Dialog handling: `cancel=True` is silently broken for native browser dialogs
+
+The Playwright migration installed a `page.on('dialog')` handler that auto-accepts every native browser dialog immediately. This is required by Playwright — unhandled dialogs are auto-dismissed. But it means `handle_alert(cancel=True)` cannot dismiss a native `confirm()` dialog, because the dialog has already been accepted by the time `handle_alert` runs.
+
+In practice, Satellite almost exclusively uses PatternFly modals (DOM elements, not native browser dialogs), so this may never trigger. But if any Satellite page uses a native `confirm()` where dismissal is the correct action, the test will silently do the wrong thing — accept instead of cancel — and pass with incorrect behavior.
+
+49 call sites across 38 entity files use `handle_alert()` or `click(handle_alert=True)`. All of them work correctly for PF modals. Only the native dialog path is broken.
+
+### ConditionalSwitchableView: no-wait reference widget reads
+
+`ConditionalSwitchableView` is a widgetastic descriptor that reads a reference widget (a dropdown, checkbox, or radio group) on every access, then returns the matching sub-view. There are 30 CSV declarations across 11 view files, with 77 registered sub-views.
+
+The risk is that CSV's `__get__` method calls `reference_widget.read()` with no explicit wait. If the reference widget has not rendered yet — which happens when a dropdown selection triggers a form layout change — the read fails immediately. Selenium's implicit waits may have masked this. Playwright has no implicit waits.
+
+The heaviest users are `repository.py` (12 CSVs, nested), `host.py` (3 CSVs), `computeresource.py` (2 CSVs), and `contentviewfilter.py` (2 CSVs). These are exactly the complex views we have not tested yet.
+
+### Multi-tab window management: index-based handle lookup
+
+Four entity methods open new browser tabs (webconsole, dynflow output, host group edit, documentation links). The current implementation uses `context.pages` list indexing — `window_handles[-1]` or `window_handles[1]` — to find the new tab. If Satellite opens tabs asynchronously or a popup appears between the click and the handle lookup, the index could point to the wrong page.
+
+The fix would be to use Playwright's `page.context.expect_page()` to wait for the new tab explicitly, rather than assuming it appears at a specific index.
+
+### What does NOT need fixing
+
+Some areas we investigated turned out to be already handled:
+
+- **File uploads** — widgetastic v2's `FileInput.fill()` already uses Playwright's `set_input_files()`. All 8 file upload widgets across 4 view files will work without changes.
+- **Iframe switching** — widgetastic v2 implements `switch_to_frame()` using Playwright's `frame_locator()`. The one iframe usage (host webconsole) is covered.
+- **Hover/move-to-element** — widgetastic v2's `move_to_element()` uses Playwright's `.hover()`. No changes needed.
+- **ConditionalSwitchableView internals** — The descriptor itself uses no Selenium API. The risk is in the reference widgets it reads, not in CSV's own code.
+
+---
+
 ## The Full Change List
 
 ### Files changed by category
