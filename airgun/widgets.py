@@ -2,7 +2,6 @@ import json
 import time
 
 from cached_property import cached_property
-from selenium.webdriver.common.keys import Keys
 from wait_for import wait_for
 from widgetastic.exceptions import NoSuchElementException, WidgetOperationFailed
 from widgetastic.widget import (
@@ -10,6 +9,7 @@ from widgetastic.widget import (
     ClickableMixin,
     GenericLocatorWidget,
     ParametrizedLocator,
+    ParametrizedView,
     Select,
     Table,
     Text,
@@ -19,32 +19,25 @@ from widgetastic.widget import (
     do_not_read_this_widget,
 )
 from widgetastic.xpath import quote
-from widgetastic_patternfly import (
-    AggregateStatusCard,
-    Button,
-    FlashMessage,
-    FlashMessages,
-    Kebab,
-    VerticalNavigation,
-)
-from widgetastic_patternfly4 import Pagination as PF4Pagination
-from widgetastic_patternfly4.ouia import (
-    Button as OUIAButton,
-)
-from widgetastic_patternfly4.table import BaseExpandableTable, BasePatternflyTable
 from widgetastic_patternfly5 import (
+    Button,
     Button as PF5Button,
     ExpandableSection as PF5ExpandableSection,
     FormSelect,
+    Navigation as VerticalNavigation,
+    Pagination as PF4Pagination,
     Progress as PF5Progress,
     RowNotExpandable,
 )
 from widgetastic_patternfly5.components.table import (
+    BaseExpandableTable,
+    BasePatternflyTable,
     PatternflyTable,
     PatternflyTableRow,
 )
 from widgetastic_patternfly5.ouia import (
     BaseSelect as PF5BaseSelect,
+    Button as OUIAButton,
     Button as PF5OUIAButton,
     Dropdown as PF5OUIADropdown,
     Menu as PF5Menu,
@@ -55,21 +48,140 @@ from airgun.exceptions import DisabledWidgetError, ReadOnlyWidgetError
 from airgun.utils import get_widget_by_name
 
 
+class FlashMessage(ParametrizedView):
+    """Minimal Patternfly alert/notification widget (replaces widgetastic_patternfly)."""
+
+    TYPE_MAPPING = {
+        'alert-warning': 'warning',
+        'alert-success': 'success',
+        'alert-danger': 'error',
+        'alert-info': 'info',
+    }
+
+    PARAMETERS = ('index',)
+    ROOT = ParametrizedLocator('.//div[contains(@class, "alert") and position()={index}]')
+    TEXT_LOCATOR = './strong'
+    DISMISS_LOCATOR = './button[contains(@class, "close")]'
+
+    @property
+    def text(self):
+        return self.browser.text(self.TEXT_LOCATOR, parent=self)
+
+    def dismiss(self):
+        return self.browser.click(self.DISMISS_LOCATOR, parent=self)
+
+    @property
+    def type(self):
+        classes = self.browser.classes(self)
+        for class_ in classes:
+            if class_ in self.TYPE_MAPPING:
+                return self.TYPE_MAPPING[class_]
+        return None
+
+    def read(self):
+        return self.text
+
+
+class FlashMessages(View):
+    """Minimal Patternfly alert group widget (replaces widgetastic_patternfly)."""
+
+    ROOT = './/div[@id="flash_msg_div"]'
+    MSG_LOCATOR = './div[contains(@class, "flash_text_div")]/div[contains(@class, "alert")]'
+    msg_class = FlashMessage
+
+    @property
+    def msg_count(self):
+        try:
+            return len(self.browser.elements(self.MSG_LOCATOR, parent=self))
+        except NoSuchElementException:
+            return 0
+
+    def messages(self, **msg_filter):
+        current_count = self.msg_count
+        for i in range(1, current_count + 1):
+            msg = self.msg_class(self, index=i)
+            if msg_filter:
+                text_filter = msg_filter.get('text')
+                if text_filter and text_filter not in msg.text:
+                    continue
+            yield msg
+
+    def assert_no_error(self):
+        for msg in self.messages():
+            if msg.type == 'error':
+                raise AssertionError(f'Flash error: {msg.text}')
+
+    def dismiss(self):
+        for msg in self.messages():
+            msg.dismiss()
+
+
+class Kebab(Widget):
+    """Minimal Kebab menu widget (replaces widgetastic_patternfly)."""
+
+    ROOT = ParametrizedLocator('{@locator}')
+    BUTTON = './button'
+    ITEMS = './/ul/li/a'
+
+    def __init__(self, parent, locator=None, **kwargs):
+        super().__init__(parent, **kwargs)
+        self.locator = locator or self.ROOT
+
+    @property
+    def is_opened(self):
+        classes = self.browser.classes(self)
+        return 'open' in classes
+
+    def open(self):
+        if not self.is_opened:
+            self.browser.click(self.BUTTON, parent=self)
+
+    def close(self):
+        if self.is_opened:
+            self.browser.click(self.BUTTON, parent=self)
+
+    @property
+    def items(self):
+        self.open()
+        return [self.browser.text(el) for el in self.browser.elements(self.ITEMS, parent=self)]
+
+    def select(self, item):
+        self.open()
+        for el in self.browser.elements(self.ITEMS, parent=self):
+            if self.browser.text(el) == item:
+                self.browser.click(el)
+                return
+        raise NoSuchElementException(f'Item {item!r} not found in kebab menu')
+
+
+class AggregateStatusCard(View):
+    """Minimal aggregate status card widget (replaces widgetastic_patternfly)."""
+
+    ROOT = ParametrizedLocator('{@locator}')
+
+    def __init__(self, parent, locator=None, **kwargs):
+        super().__init__(parent, **kwargs)
+        if locator:
+            self.locator = locator
+
+
 class SatSelect(Select):
     """Represent basic select element except our custom implementation remove
     html tags from select option values
     """
 
     SELECTED_OPTIONS_TEXT = """
-var result_arr = [];
-var opt_elements = arguments[0].selectedOptions;
-for(var i = 0; i < opt_elements.length; i++){
-    value = opt_elements[i].innerHTML;
-    parsed_value = value.replace(/<[^>]+>/gm, '');
-    result_arr.push(parsed_value);
-}
-return result_arr;
-"""
+        (select) => {
+            var result_arr = [];
+            var opt_elements = select.selectedOptions;
+            for(var i = 0; i < opt_elements.length; i++){
+                var value = opt_elements[i].innerHTML;
+                var parsed_value = value.replace(/<[^>]+>/gm, '');
+                result_arr.push(parsed_value);
+            }
+            return result_arr;
+        }
+    """
 
 
 class CheckboxWithAlert(Checkbox):
@@ -402,7 +514,7 @@ class ItemsList(GenericLocatorWidget):
     def read(self):
         """Return a list of strings representing elements in the
         :class:`ItemsList`."""
-        return [el.text for el in self.browser.elements(self.ITEMS, parent=self)]
+        return [self.browser.text(el) for el in self.browser.elements(self.ITEMS, parent=self)]
 
     def fill(self, value):
         """Clicks on element inside the list.
@@ -439,7 +551,7 @@ class AddRemoveItemsList(GenericLocatorWidget):
     def read(self):
         """Return a list of strings representing elements in the
         :class:`AddRemoveItemsList`."""
-        return [el.text for el in self.browser.elements(self.ITEMS, parent=self)]
+        return [self.browser.text(el) for el in self.browser.elements(self.ITEMS, parent=self)]
 
     def fill(self, value):
         """Clicks on whether Add or Remove button for necessary element from the list.
@@ -491,7 +603,7 @@ class ItemsListGroup(GenericLocatorWidget):
     )
 
     def read(self):
-        return [el.text for el in self.browser.elements(self.ITEMS, parent=self)]
+        return [self.browser.text(el) for el in self.browser.elements(self.ITEMS, parent=self)]
 
     def fill(self, value):
         if not self.browser.is_displayed(self.ITEM.format(value)):
@@ -584,10 +696,10 @@ class MultiSelectNoFilter(MultiSelect):
     they will be stored in a list. Unassigned items contains the list which compare with the values,
     if value is present it will assign the value or vise-versa."""
 
-    more_item = Text('//span[@class="pf-v5-c-menu-toggle__toggle-icon"]')
-    select_pages = Text('//ul[@class="pf-v5-c-menu__list"]/li[6]/button')
-    available_role_template = '//div[@class="available-roles-container col-sm-6"]/div[2]/div'
-    assigned_role_template = '//div[@class="assigned-roles-container col-sm-6"]/div[2]/div'
+    more_item = Text('.//span[@class="pf-v5-c-menu-toggle__toggle-icon"]')
+    select_pages = Text('.//ul[@class="pf-v5-c-menu__list"]/li[6]/button')
+    available_role_template = './/div[@class="available-roles-container col-sm-6"]/div[2]/div'
+    assigned_role_template = './/div[@class="assigned-roles-container col-sm-6"]/div[2]/div'
 
     def fill(self, values):
         """This method facilitates assigning value(s) both during creation and after creation.
@@ -598,23 +710,25 @@ class MultiSelectNoFilter(MultiSelect):
         self.select_pages.click()
         available_list = self.browser.elements(self.available_role_template)
         for data in available_list[1:]:
-            if data.text.split('. ')[1] in values:
-                data.click()
+            if self.browser.text(data).split('. ')[1] in values:
+                self.browser.click(data)
         return True
 
     def unassigned_values(self, values):
         """This method facilitates the removal of items from the assigned list, effectively unassigned them."""
         assigned_list = self.browser.elements(self.assigned_role_template)
         for data in assigned_list:
-            if data.text.split('. ')[1] in values.values():
-                data.click()
+            if self.browser.text(data).split('. ')[1] in values.values():
+                self.browser.click(data)
         return True
 
     def read_assigned_values(self, values):
         """Returns a list of assigned value(s)."""
         assigned_list = self.browser.elements(self.assigned_role_template)
         value = [
-            data.text.split('. ')[1] for data in assigned_list if data.text.split('. ')[1] in values
+            self.browser.text(data).split('. ')[1]
+            for data in assigned_list
+            if self.browser.text(data).split('. ')[1] in values
         ]
         return value
 
@@ -752,22 +866,31 @@ class ActionsDropdown(GenericLocatorWidget):
         "contains(@ng-click, 'toggleDropdown')][contains(@class, 'btn')]"
         "[*[self::span or self::i][contains(@class, 'caret')]]"
     )
-    pf4_drop_down = Text("//div[contains(@data-ouia-component-id, 'bookmarks-dropdown')]")
+    pf4_drop_down = Text(
+        ".//button[contains(@class, '-c-dropdown__toggle') "
+        "or contains(@class, '-c-menu-toggle')]"
+    )
     button = Text(
         ".//*[self::button or self::span][contains(@class, 'btn') or "
         "contains(@aria-label, 'search button')]"
         "[not(*[self::span or self::i][contains(@class, 'caret')])]"
     )
-    ITEMS_LOCATOR = './/ul/li/a'
-    ITEM_LOCATOR = './/ul/li/a[normalize-space(.)="{}"]'
+    ITEMS_LOCATOR = (
+        './/ul/li/a | .//ul//li/button[contains(@role, "menuitem")]'
+        ' | .//*[contains(@class, "-c-dropdown__menu-item")]'
+    )
+    ITEM_LOCATOR = (
+        './/ul/li/a[normalize-space(.)="{item}"] '
+        '| .//ul//li/button[contains(@role, "menuitem")][normalize-space(.)="{item}"]'
+        ' | .//*[contains(@class, "-c-dropdown__menu-item")][normalize-space(.)="{item}"]'
+    )
 
     @property
     def is_open(self):
         """Checks whether dropdown list is open."""
         try:
-            return 'open' in self.browser.classes(
-                self
-            ) or 'pf-m-expanded' in self.pf4_drop_down.browser.classes(self.pf4_drop_down)
+            classes = self.browser.classes(self)
+            return 'open' in classes or 'pf-m-expanded' in classes
         except NoSuchElementException:
             return False
 
@@ -801,7 +924,7 @@ class ActionsDropdown(GenericLocatorWidget):
         """Selects item from dropdown."""
         if item in self.items:
             self.open()
-            self.browser.element(self.ITEM_LOCATOR.format(item), parent=self).click()
+            self.browser.element(self.ITEM_LOCATOR.format(item=item), parent=self).click()
         else:
             raise ValueError(
                 f'Specified action "{item}" not found in actions list. '
@@ -936,12 +1059,12 @@ class Search(Widget):
 class PF4Search(Search):
     """PF4 Searchbar for table filtering"""
 
-    ROOT = '//div[@class="foreman-search-bar"]'
+    ROOT = './/div[@class="foreman-search-bar"]'
     search_field = TextInput(locator=(".//input[@aria-label='Search input']"))
     search_button = Text(locator=(".//button[@aria-label='Search']"))
     clear_button = Text(locator=(".//button[@aria-label='Reset search']"))
 
-    actions = ActionsDropdown("//div[contains(@data-ouia-component-id, 'bookmarks-dropdown')]")
+    actions = ActionsDropdown(".//div[contains(@data-ouia-component-id, 'bookmarks-dropdown')]")
 
     def clear(self):
         """Clears search field value and re-trigger search to remove all
@@ -975,7 +1098,7 @@ class PF5NavSearchMenu(PF5Menu, OUIAGenericWidget):
 class PF5NavSearch(PF4Search):
     """PF5 vertical navigation menu search."""
 
-    ROOT = '//div[@id="navigation-search"]'
+    ROOT = './/div[@id="navigation-search"]'
     search_field = TextInput(locator=".//input[@aria-label='Search input']")
     search_button = PF5Button(locator=".//button[@aria-label='Search']")
     clear_button = PF5Button(locator=".//button[@aria-label='Reset']")
@@ -1069,9 +1192,9 @@ class SatFlashMessage(FlashMessage):
     def text(self):
         """Return the message text of the notification."""
         try:
-            return self.browser.text(self.DESCRIPTION_LOCATOR)
+            return self.browser.text(self.DESCRIPTION_LOCATOR, parent=self)
         except NoSuchElementException:
-            return self.browser.text(self.TITLE_LOCATOR)
+            return self.browser.text(self.TITLE_LOCATOR, parent=self)
 
 
 class SatFlashMessages(FlashMessages):
@@ -1092,8 +1215,8 @@ class SatFlashMessages(FlashMessages):
 
     """
 
-    ROOT = '//ul[@class="pf-v5-c-alert-group pf-m-toast"]'
-    MSG_LOCATOR = f'{ROOT}//div[contains(@class, "foreman-toast")]'
+    ROOT = './/ul[@class="pf-v5-c-alert-group pf-m-toast"]'
+    MSG_LOCATOR = './/div[contains(@class, "foreman-toast")]'
     msg_class = SatFlashMessage
 
 
@@ -1171,10 +1294,10 @@ class ValidationErrors(Widget):
 
 
 class ContextSelector(Widget):
-    CURRENT_ORG = '//div[@data-ouia-component-id="taxonomy-context-selector-organization"]'
-    CURRENT_LOC = '//div[@data-ouia-component-id="taxonomy-context-selector-location"]'
-    ORG_LOCATOR = '//div[@id="organization-dropdown"]//li[button[contains(.,{})]]'
-    LOC_LOCATOR = '//div[@id="location-dropdown"]//li[button[contains(.,{})]]'
+    CURRENT_ORG = './/div[@data-ouia-component-id="taxonomy-context-selector-organization"]'
+    CURRENT_LOC = './/div[@data-ouia-component-id="taxonomy-context-selector-location"]'
+    ORG_LOCATOR = './/div[@id="organization-dropdown"]//li[button[contains(.,{})]]'
+    LOC_LOCATOR = './/div[@id="location-dropdown"]//li[button[contains(.,{})]]'
 
     def select_org(self, org_name):
         self.logger.info('Selecting Organization %r', org_name)
@@ -1239,14 +1362,12 @@ class FilteredDropdown(GenericLocatorWidget):
     """
 
     selected_value = Text("./ancestor::div[1]//span/span[contains(@class, 'rendered')]")
-    open_filter = Text("./ancestor::div[1]//span/span[contains(@class, 'arrow')]")
+    open_filter = Text("./ancestor::div[1]//span[contains(@class, 'select2-container')]")
     clear_filter = Text('./a/abbr')
-    filter_criteria = TextInput(
-        locator="//span[@class='select2-search select2-search--dropdown']//input"
-    )
-    filter_content = ItemsList(
-        "//span[not(contains(@style, 'display: none')) and @class='select2-results']/ul"
-    )
+
+    SEARCH_INPUT = 'span.select2-search--dropdown input.select2-search__field'
+    RESULTS_LIST = 'span.select2-results ul.select2-results__options'
+    RESULT_ITEM = 'span.select2-results ul.select2-results__options li'
 
     def __init__(self, parent, id=None, locator=None, logger=None):
         """Supports initialization via ``id=`` or ``locator=``"""
@@ -1264,7 +1385,11 @@ class FilteredDropdown(GenericLocatorWidget):
         self.clear_filter.click()
 
     def fill(self, value):
-        """Select specific item from the drop-down
+        """Select specific item from the drop-down.
+
+        Uses page-level locators for the search input and results list
+        because Select2 v4 appends dropdown DOM to <body>, outside this
+        widget's parent element tree.
 
         :param value: string with item value
         """
@@ -1272,8 +1397,11 @@ class FilteredDropdown(GenericLocatorWidget):
             self.clear()
             return True
         self.open_filter.click()
-        self.filter_criteria.fill(value)
-        self.filter_content.fill(value)
+        page = self.browser.page
+        search_input = page.locator(self.SEARCH_INPUT)
+        search_input.wait_for(state='visible', timeout=5000)
+        search_input.fill(value)
+        page.locator(self.RESULT_ITEM).filter(has_text=value).first.click()
 
 
 class PF4FilteredDropdown(GenericLocatorWidget):
@@ -1492,7 +1620,7 @@ class Pf4ConfirmationDialog(ConfirmationDialog):
     """PF4 confirmation dialog with two buttons and close 'x' button in the
     right corner."""
 
-    ROOT = '//div[@id="app-confirm-modal" or @data-ouia-component-type="PF4/ModalContent"]'
+    ROOT = './/div[@id="app-confirm-modal" or @data-ouia-component-type="PF4/ModalContent"]'
     confirm_dialog = OUIAButton('btn-modal-confirm')
     cancel_dialog = OUIAButton('btn-modal-cancel')
     discard_dialog = OUIAButton('app-confirm-modal-ModalBoxCloseButton')
@@ -1502,7 +1630,7 @@ class Pf5ConfirmationDialog(ConfirmationDialog):
     """PF5 confirmation dialog with two buttons and close 'x' button in the
     right corner."""
 
-    ROOT = '//div[@id="app-confirm-modal" or @data-ouia-component-type="PF5/ModalContent"]'
+    ROOT = './/div[@id="app-confirm-modal" or @data-ouia-component-type="PF5/ModalContent"]'
     confirm_dialog = PF5OUIAButton('btn-modal-confirm')
     cancel_dialog = PF5OUIAButton('btn-modal-cancel')
     discard_dialog = PF5OUIAButton('app-confirm-modal-ModalBoxCloseButton')
@@ -1702,10 +1830,10 @@ class EditableEntry(GenericLocatorWidget):
     save_button = Text(".//button[normalize-space(.)='Save']")
     cancel_button = Text(".//button[span[normalize-space(.)='Cancel']]")
     entry_value = Text(".//span[contains(@class, 'editable-value')]")
-    pf4_edit_button = Text("//button[@aria-label='edit name']")
+    pf4_edit_button = Text(".//button[@aria-label='edit name']")
     pf4_edit_field = TextInput(locator=".//input[@aria-label='name text input']")
-    pf4_save_button = Text("//button[@aria-label='submit name']")
-    pf4_cancel_button = Text("//button[@aria-label='clear name']")
+    pf4_save_button = Text(".//button[@aria-label='submit name']")
+    pf4_cancel_button = Text(".//button[@aria-label='clear name']")
 
     def __init__(self, parent, locator=None, name=None, logger=None):
         """Supports initialization via ``locator=`` or ``name=``"""
@@ -1765,7 +1893,10 @@ class CheckboxGroup(GenericLocatorWidget):
 
     @cached_property
     def checkboxes(self):
-        labels = [line.text for line in self.browser.elements(self.ITEMS_LOCATOR, parent=self)]
+        labels = [
+            self.browser.text(line)
+            for line in self.browser.elements(self.ITEMS_LOCATOR, parent=self)
+        ]
         return {
             label: Checkbox(self, locator=self.CHECKBOX_LOCATOR.format(label)) for label in labels
         }
@@ -1805,7 +1936,10 @@ class TextInputsGroup(GenericLocatorWidget):
 
     @cached_property
     def labels(self):
-        return [line.text for line in self.browser.elements(self.FIELD_LABELS, parent=self)]
+        return [
+            self.browser.text(line)
+            for line in self.browser.elements(self.FIELD_LABELS, parent=self)
+        ]
 
     @cached_property
     def textinputs(self):
@@ -1900,12 +2034,23 @@ class ACEEditor(Widget):
 
     """
 
-    ROOT = "//div[contains(@class, 'ace_editor')]"
+    ROOT = ".//div[contains(@class, 'ace_editor')]"
 
     def __init__(self, parent, logger=None):
-        """Getting id for specific ace editor element"""
         Widget.__init__(self, parent, logger=logger)
-        self.ace_edit_id = self.browser.element(self.ROOT).get_attribute('id')
+        self._ace_edit_id = None
+
+    @property
+    def ace_edit_id(self):
+        if self._ace_edit_id is None:
+            el, _ = wait_for(
+                self.__element__,
+                timeout=30,
+                delay=0.5,
+                handle_exception=True,
+            )
+            self._ace_edit_id = el.get_attribute('id')
+        return self._ace_edit_id
 
     def fill(self, value):
         """Fill widget with necessary value
@@ -1913,7 +2058,7 @@ class ACEEditor(Widget):
         :param value: string with value that should be used for field update
             procedure
         """
-        self.browser.execute_script(f"ace.edit('{self.ace_edit_id}').setValue(arguments[0])", value)
+        self.browser.execute_script(f"ace.edit('{self.ace_edit_id}').setValue(arguments[0], 1)", value)
 
     def read(self):
         """Returns string with current widget value"""
@@ -1934,7 +2079,7 @@ class Pagination(Widget):
     next_page_button = Button(".//div[button[@data-action='next']]")
     last_page_button = Button(".//div[button[@data-action='last']]")
     page = TextInput(locator=".//input[contains(@class, 'pf-c-form-control')]")
-    pages = Text("//div[contains(@class, 'pf-c-pagination__nav-page-select')]//span")
+    pages = Text(".//div[contains(@class, 'pf-c-pagination__nav-page-select')]//span")
     total_items = Text(".//span[contains(@class, 'pf-c-options-menu__toggle-text')]/b[2]")
 
     @cached_property
@@ -2060,7 +2205,7 @@ class SatTable(Table):
     )
     tbody_row = Text('./tbody/tr')
     pagination = PF4Pagination(
-        locator="//div[contains(@class, 'pf-c-pagination') and not(contains(@class, 'pf-m-compact'))]"
+        locator=".//div[contains(@class, 'pf-c-pagination') and not(contains(@class, 'pf-m-compact'))]"
     )
 
     @property
@@ -2566,7 +2711,7 @@ class RemovableWidgetsItemsListView(View):
 
         @View.nested
         class resources(RemovableWidgetsItemsListView):
-            ROOT = "//fieldset[@id='storage_volumes']"
+            ROOT = ".//fieldset[@id='storage_volumes']"
             ITEMS = "./div/div[contains(@class, 'removable-item')]"
             ITEM_WIDGET_CLASS = ComputeResourceRHVProfileStorageItem
     """
@@ -2669,7 +2814,7 @@ class AutoCompleteTextInput(TextInput):
     """
 
     clear_button = Text(
-        locator="//span[contains(@class,'autocomplete-clear-button') or "
+        locator=".//span[contains(@class,'autocomplete-clear-button') or "
         "contains(@class,'fa-close')]"
     )
 
@@ -2752,7 +2897,7 @@ class PopOverModalView(View):
         //div[contains(@class,'modal-content')]
     """
 
-    ROOT = "//div[contains(@class,'modal-content')]"
+    ROOT = ".//div[contains(@class,'modal-content')]"
     header = Text(".//h4[contains(@class, 'modal-title')]")
     input_box = TextInput(locator=".//input[contains(@class, 'form-control')]")
     textarea = TextInput(locator=".//textarea[contains(@class, 'form-control')]")
@@ -2801,7 +2946,7 @@ class FieldWithEditButton(Widget):
     Is present e.g. in PF5 Settings.
     """
 
-    ROOT = '//td[2]'
+    ROOT = "."
     text_input = TextInput(locator=".//input[@data-ouia-component-type='PF5/TextInput']")
     text_area = TextInput(locator='.//textarea')
     drop_down = FormSelect(locator=".//select[@data-ouia-component-type='PF5/FormSelect']")
@@ -2904,8 +3049,9 @@ class BaseMultiSelect(PF5BaseSelect, PF5OUIADropdown):
         try:
             for item in items:
                 element = self.item_element(item, close=False)
-                if not element.find_element('xpath', './..').get_attribute('aria-selected'):
-                    element.click()
+                parent_el = self.browser.element('./..', parent=element)
+                if not self.browser.get_attribute('aria-selected', parent_el):
+                    self.browser.click(element)
         finally:
             self.browser.click(self.BUTTON_LOCATOR)
 
@@ -2937,7 +3083,7 @@ class InventoryBootstrapSwitch(Widget):
 
     ON_TOGGLE = ".//span[contains(@class, 'bootstrap-switch-handle-on')]"
     OFF_TOGGLE = ".//span[contains(@class, 'bootstrap-switch-handle-off')]"
-    ROOT = ParametrizedLocator('//div[@class={@class_name|quote}]/div')
+    ROOT = ParametrizedLocator('.//div[@class={@class_name|quote}]/div')
 
     def __init__(self, parent, class_name, **kwargs):
         Widget.__init__(self, parent, logger=kwargs.pop('logger', None))
@@ -2951,7 +3097,7 @@ class InventoryBootstrapSwitch(Widget):
     def _clickable_el(self):
         """In automation, you need to click on exact toggle element to trigger action
 
-        Returns: selenium webelement
+        Returns: Locator element
         """
         locator = self.ON_TOGGLE
         if not self.selected:
@@ -2972,8 +3118,8 @@ class InventoryBootstrapSwitch(Widget):
 class SearchInput(TextInput):
     """Searchbar's contained input text, and buttons"""
 
-    search_field = TextInput(locator=('//input[@aria-label="Search input"]'))
-    clear_button = Text(locator=('//button[@aria-label="Reset search"]'))
+    search_field = TextInput(locator=('.//input[@aria-label="Search input"]'))
+    clear_button = Text(locator=('.//button[@aria-label="Reset search"]'))
 
     def clear(self):
         """Clear search input by clicking the clear_button.
@@ -2994,7 +3140,7 @@ class SearchInput(TextInput):
         if changed:
             # workaround for BZ #2140636
             time.sleep(enter_timeout)
-            self.browser.send_keys(Keys.ENTER, self)
+            self.browser.press_key('Enter', self)
             time.sleep(after_enter_timeout)
         return changed
 
@@ -3005,7 +3151,7 @@ class EditModal(View):
     title = Text('.//h1')
     close_button = OUIAButton('acs-edit-details-modal-ModalBoxCloseButton')
 
-    error_message = Text('//div[contains(@aria-label, "Danger Alert")]')
+    error_message = Text('.//div[contains(@aria-label, "Danger Alert")]')
 
 
 class DualListSelector(EditModal):
@@ -3066,7 +3212,7 @@ class PF5LabeledExpandableSection(PF5ExpandableSection):
     """
 
     ROOT = ParametrizedLocator(
-        '//div[contains(@class, "-c-expandable-section")]/button[normalize-space(.)={@label|quote}]/..'
+        './/div[contains(@class, "-c-expandable-section")]/button[normalize-space(.)={@label|quote}]/..'
     )
     BUTTON_LOCATOR = ParametrizedLocator('.//button[normalize-space(.)={@label|quote}]')
     label = 'You need to set this `label` attribute yourself!'
@@ -3179,7 +3325,7 @@ class CompoundExpandableTable(PatternflyTable):
                 if isinstance(col_name, int):
                     try:
                         cell = self.browser.element(f'./td[{col_name + 1}]', parent=child_el)
-                        child_data[col_name] = cell.text.strip()
+                        child_data[col_name] = self.browser.text(cell).strip()
                     except NoSuchElementException:
                         # Column doesn't exist in child row - set to empty string
                         child_data[col_name] = ''
@@ -3191,7 +3337,7 @@ class CompoundExpandableTable(PatternflyTable):
                         cell = self.browser.element(
                             f'./td[@data-label="{col_name}"]', parent=child_el
                         )
-                        child_data[col_name] = cell.text.strip()
+                        child_data[col_name] = self.browser.text(cell).strip()
                     except NoSuchElementException:
                         # Column doesn't exist in child row - set to empty string
                         # This handles cases where child rows have different column structures
@@ -3236,7 +3382,7 @@ class PF5TypeaheadSelect(Widget):
     def _get_option_locator(self, value):
         """Build an XPath locator for the dropdown menu option."""
         return (
-            f'//*[@id="select-typeahead-listbox"]'
+            f'.//*[@id="select-typeahead-listbox"]'
             f'//button[contains(@class, "pf-v5-c-menu__item") and normalize-space(.)="{value}"]'
         )
 
@@ -3244,7 +3390,7 @@ class PF5TypeaheadSelect(Widget):
         """Type value and click matching option."""
         input_el = self.browser.wait_for_element(self.locator, timeout=30, exception=True)
         self.browser.clear(input_el)
-        input_el.send_keys(value)
+        self.browser.send_keys(value, input_el)
 
         option_locator = self._get_option_locator(value)
         option_el = self.browser.wait_for_element(option_locator, timeout=10, exception=True)
