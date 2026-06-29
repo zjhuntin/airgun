@@ -9,7 +9,6 @@ We rewrote airgun to run on Playwright instead of Selenium. The core migration i
 **Branches:**
 - Airgun: `zjhuntin/airgun` branch `playwright-migration` (6 commits, pushed)
 - Robottelo: branch `playwright-migration` (1 commit + local config changes)
-- Jira epic: [SAT-46590](https://redhat.atlassian.net/browse/SAT-46590)
 
 ---
 
