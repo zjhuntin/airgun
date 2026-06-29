@@ -269,11 +269,10 @@ self.browser.execute_script(f"ace.edit('{id}').setValue(arguments[0])", value)
 
 This updates ACE's in-memory buffer. But Satellite's template form has a separate change listener that syncs the buffer to a hidden `<textarea>` form field. Under Selenium, execution was slow enough that this listener fired before the test clicked Submit. Under Playwright, `setValue()` and the Submit click happen so fast that the listener never runs, and the form sends the old content.
 
-We tried two approaches:
+We tried three approaches:
 1. **Triggering ACE's internal change signal** — `editor.session._signal('change')` crashed ACE's `onDocumentChange` handler because it expects a structured delta object describing what changed, not a bare signal.
 2. **Dispatching DOM events on the textarea** — Dispatching `change` and `input` events on the backing textarea caused a feedback loop where the value was written twice.
-
-The fix will likely involve either finding the correct ACE callback to invoke, or switching from `setValue()` to Playwright's keyboard API to type into the editor character-by-character (slower but guaranteed to trigger all change listeners).
+3. **`press_sequentially()` (current approach)** — Click the editor's textarea, select all with Ctrl+A, then type the new value character by character using Playwright's `press_sequentially(delay=5)`. This fires every keydown/keypress/keyup event, which should trigger ACE's internal change listeners and Satellite's form sync handler. Implemented but not yet validated with a test run.
 
 **What this blocks:** Any test that creates or edits template content through the ACE editor. This includes job templates, provisioning templates, partition tables, and report templates (though report template tests that only read templates still pass).
 
@@ -372,6 +371,38 @@ Some areas we investigated turned out to be already handled:
 
 ---
 
+## Playwright Features We Should Adopt
+
+An audit of what Playwright offers versus what we actually use revealed several features that would fix known problems or improve reliability. We are currently using a narrow slice of the Playwright API — mostly `page.evaluate()`, `page.screenshot()`, `page.on()`, and `expect_download()`. Here is what we are missing and where each one helps.
+
+### Features that fix known problems
+
+**`press_sequentially()`** — Types text character by character, firing every key event. This is the fix for the ACE editor bug. Instead of `execute_script("ace.edit(...).setValue(...)")`, which updates the buffer without triggering change listeners, we click the editor's textarea, select all, and type the new content keystroke by keystroke. Slower, but every change listener fires naturally. Implemented in `widgets.py` ACEEditor.fill().
+
+**`expect_popup()`** — Waits for a new browser tab to open, returning the Page object when it appears. This replaces the fragile `context.pages[-1]` index lookup used in four entity methods (host webconsole, dynflow output, host group edit, documentation links). With `expect_popup()`, we get the right page even if tabs open asynchronously or out of order.
+
+**`add_locator_handler()`** — Registers a callback that fires automatically whenever a matching overlay or dialog appears during any Playwright action. This could replace our polling-based `handle_alert()` for PatternFly modals. Instead of 49 explicit `handle_alert()` calls scattered across entity files, a single handler registered at session start would dismiss or confirm modals whenever they block an interaction.
+
+**`page.route()`** and **`expect_response()`** — Intercept or wait for specific network requests. These could replace some of the 37 `time.sleep()` calls that exist because `ensure_page_safe()` does not cover every AJAX response. Instead of sleeping 3 seconds and hoping the table reloaded, we wait for the actual XHR response that populates it.
+
+### Features that improve reliability
+
+**`get_by_role()`, `get_by_label()`, `get_by_text()`** — Semantic locators that find elements by their ARIA role, associated label, or text content. More resilient than XPath because they do not depend on CSS classes or DOM structure. We could use these for new widget code instead of writing XPath locators, though converting existing locators is not worth the effort.
+
+**`expect(locator).to_be_visible()`** and other auto-retrying assertions — Playwright's assertion library retries until a condition is met or a timeout expires. This replaces the `wait_for(lambda: widget.is_displayed, timeout=N)` pattern we use throughout the entity layer. The built-in assertions are cleaner and handle edge cases (like elements that briefly disappear and reappear) that our lambda polling does not.
+
+**`tracing`** — Records a trace of all browser actions, network requests, and DOM snapshots. Traces can be opened in Playwright's Trace Viewer for step-by-step debugging. This would be valuable in CI where video recordings are hard to scrub through. A trace captures what happened at each step, not just what the screen looked like.
+
+**`storage_state()`** — Saves cookies and local storage to a file, which can be loaded into a new browser context. This could speed up test setup by saving a logged-in session state once and reusing it across tests, instead of logging in through the UI for every test.
+
+### What we are not adopting yet
+
+**`page.route()` for request mocking** — Useful for unit-testing UI components against fake API responses, but our tests run against a live Satellite instance. Mocking would defeat the purpose.
+
+**`get_by_test_id()`** — Requires `data-testid` attributes in the Satellite UI HTML. We do not control the Satellite frontend, so we cannot add these attributes. Useful only where they already exist.
+
+---
+
 ## The Full Change List
 
 ### Files changed by category
@@ -402,10 +433,14 @@ aa3af5c fix(entities): replace Selenium API calls and add download triggers
 
 ## What's Next
 
-1. **Fix the ACE editor.** This is the immediate blocker. Most promising approach: use Playwright's keyboard API to type into the editor, or identify the correct ACE event callback that Satellite binds to sync content to the form.
+1. **Validate the ACE editor fix.** Reimplemented `ACEEditor.fill()` using `press_sequentially()` instead of `setValue()`. Needs a test run against `test_jobtemplate::test_positive_end_to_end` to confirm the form sync issue is resolved.
 
-2. **Test the complex views.** Run tests that exercise host creation, content view management, compute resource forms, and ansible role assignment. Each of these will likely surface new widget issues that need fixing.
+2. **Adopt `expect_popup()` for multi-tab handling.** Replace the index-based `context.pages[-1]` lookups in four entity methods with `expect_popup()` to eliminate the race condition.
 
-3. **Write the migration guide.** Document the patterns that changed so other contributors can maintain the Playwright-based codebase.
+3. **Test the complex views.** Run tests that exercise host creation, content view management, compute resource forms, and ansible role assignment. Each of these will likely surface new widget issues that need fixing.
 
-4. **Validate the CI pipeline.** Trigger a real Jenkins run with the Playwright container to confirm the infrastructure works end-to-end.
+4. **Replace `time.sleep()` calls with condition-based waits.** Use `expect_response()` or `wait_for` with DOM conditions instead of the 37 hardcoded sleeps across entity files.
+
+5. **Write the migration guide.** Document the patterns that changed so other contributors can maintain the Playwright-based codebase.
+
+6. **Validate the CI pipeline.** Trigger a real Jenkins run with the Playwright container to confirm the infrastructure works end-to-end.

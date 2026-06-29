@@ -2055,10 +2055,18 @@ class ACEEditor(Widget):
     def fill(self, value):
         """Fill widget with necessary value
 
+        Uses Playwright's press_sequentially() to type into the ACE editor
+        keystroke by keystroke. This triggers all of ACE's internal change
+        listeners and Satellite's form sync handlers, which setValue() alone
+        does not do under Playwright's faster execution model.
+
         :param value: string with value that should be used for field update
             procedure
         """
-        self.browser.execute_script(f"ace.edit('{self.ace_edit_id}').setValue(arguments[0], 1)", value)
+        textarea = self.browser.page.locator(f"#{self.ace_edit_id} textarea.ace_text-input")
+        textarea.click()
+        textarea.press("Control+a")
+        textarea.press_sequentially(value, delay=5)
 
     def read(self):
         """Returns string with current widget value"""
